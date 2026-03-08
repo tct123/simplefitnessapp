@@ -60,7 +60,7 @@ export const checkAndScheduleRecurringWorkouts = async (
     const now = new Date();
     const currentTimestamp = Math.floor(
       new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() /
-        1000
+      1000
     );
 
     console.log(
@@ -158,8 +158,7 @@ const calculateNextOccurrence = async (
 ): Promise<number> => {
   try {
     console.log(
-      `Calculating next occurrence for ${
-        workout.workout_name
+      `Calculating next occurrence for ${workout.workout_name
       } from current date (${new Date(
         currentTimestamp * 1000
       ).toDateString()})`
@@ -245,37 +244,37 @@ const findNextMatchingDay = (
  * Schedule a workout in the Workout_Log table
  */
 const scheduleWorkout = async (
-  db: any, 
-  workout: RecurringWorkout, 
+  db: any,
+  workout: RecurringWorkout,
   scheduledDate: number,
   scheduleNotification: any,
   notificationPermissionGranted: boolean
 ) => {
   try {
     let notificationId = null;
-    
+
     // First, insert the workout into the log
     const { lastInsertRowId: workoutLogId } = await db.runAsync(
       'INSERT INTO Workout_Log (workout_date, day_name, workout_name, notification_id) VALUES (?, ?, ?, ?);',
       [scheduledDate, workout.day_name, workout.workout_name, null] // Initially set notification_id to null
     );
-    
+
     console.log(`Successfully inserted workout into log with ID: ${workoutLogId}`);
-    
+
     // Only schedule notification AFTER successfully adding workout to the database
     if (workout.notification_enabled && workout.notification_time && notificationPermissionGranted) {
       console.log(`Scheduling notification for workout`);
-      
+
       // Parse notification time (HH:MM format)
       const [hours, minutes] = workout.notification_time.split(':').map(Number);
-      
+
       // Create notification time Date object
       const notificationTime = new Date();
       notificationTime.setHours(hours, minutes, 0, 0);
-      
+
       // Convert scheduledDate to Date object
       const workoutDate = new Date(scheduledDate * 1000);
-      
+
       // Schedule the notification
       notificationId = await scheduleNotification({
         workoutName: workout.workout_name,
@@ -283,7 +282,7 @@ const scheduleWorkout = async (
         scheduledDate: workoutDate,
         notificationTime: notificationTime
       });
-      
+
       // Update the workout log with the notification ID if one was created
       if (notificationId) {
         console.log(`Notification scheduled with ID: ${notificationId}, updating workout log`);
@@ -295,22 +294,22 @@ const scheduleWorkout = async (
     } else {
       console.log(`No notification scheduled for this workout (enabled: ${workout.notification_enabled}, time: ${workout.notification_time}, permissions: ${notificationPermissionGranted})`);
     }
-    
+
     // Get exercises for this day
     const dayId = await getDayId(db, workout.workout_id, workout.day_name);
     if (!dayId) {
       console.error(`Day ID not found for workout_id ${workout.workout_id}, day_name ${workout.day_name}`);
       throw new Error('Day not found');
     }
-    
+
     // Fetch all exercises associated with the selected day
     const exercises = await db.getAllAsync(
       'SELECT exercise_name, sets, reps, web_link, muscle_group, exercise_notes FROM Exercises WHERE day_id = ?;',
       [dayId]
     ) as Exercise[];
-    
+
     console.log(`Adding ${exercises.length} exercises to the logged workout`);
-    
+
     // Insert exercises into the Logged_Exercises table
     const insertExercisePromises = exercises.map((exercise: Exercise) =>
       db.runAsync(
@@ -318,7 +317,7 @@ const scheduleWorkout = async (
         [workoutLogId, exercise.exercise_name, exercise.sets, exercise.reps, exercise.web_link, exercise.muscle_group, exercise.exercise_notes]
       )
     );
-    
+
     await Promise.all(insertExercisePromises);
     console.log(`Workout successfully scheduled with ${exercises.length} exercises`);
     return true;
@@ -336,8 +335,8 @@ const getDayId = async (db: any, workoutId: number, dayName: string): Promise<nu
     const results = await db.getAllAsync(
       'SELECT day_id FROM Days WHERE workout_id = ? AND day_name = ?',
       [workoutId, dayName]
-    ) as Array<{ day_id: number }>;
-    
+    ) as { day_id: number }[];
+
     const result = results[0];
     return result ? result.day_id : null;
   } catch (error) {
@@ -351,32 +350,32 @@ const getDayId = async (db: any, workoutId: number, dayName: string): Promise<nu
  */
 export const useRecurringWorkouts = () => {
   const db = useSQLiteContext();
-  const { 
-    scheduleNotification, 
+  const {
+    scheduleNotification,
     notificationPermissionGranted,
     checkNotificationPermission
   } = useNotifications();
-  
- const checkRecurringWorkouts = useCallback(async () => {
-  let currentPermissionStatus;
-  try {
-    currentPermissionStatus = await checkNotificationPermission();
-    console.log(
-      `Current notification permission status: ${currentPermissionStatus}`
+
+  const checkRecurringWorkouts = useCallback(async () => {
+    let currentPermissionStatus;
+    try {
+      currentPermissionStatus = await checkNotificationPermission();
+      console.log(
+        `Current notification permission status: ${currentPermissionStatus}`
+      );
+    } catch (error) {
+      console.error("Error checking notification permissions:", error);
+      return; // Stop if permissions fail
+    }
+
+    return await checkAndScheduleRecurringWorkouts(
+      db,
+      scheduleNotification,
+      currentPermissionStatus,
+      3
     );
-  } catch (error) {
-    console.error("Error checking notification permissions:", error);
-    return; // Stop if permissions fail
-  }
-    
-return await checkAndScheduleRecurringWorkouts(
-    db,
-    scheduleNotification,
-    currentPermissionStatus,
-    3
-  );
-}, [db, scheduleNotification, checkNotificationPermission]);
-  
+  }, [db, scheduleNotification, checkNotificationPermission]);
+
   // Create a new recurring workout
   const createRecurringWorkout = async (data: {
     workout_id: number;
@@ -389,7 +388,7 @@ return await checkAndScheduleRecurringWorkouts(
   }) => {
     try {
       const startDate = Math.floor(new Date().getTime() / 1000);
-      
+
       await db.runAsync(
         `INSERT INTO Recurring_Workouts (
           workout_id, workout_name, day_name, recurring_start_date, 
@@ -406,14 +405,14 @@ return await checkAndScheduleRecurringWorkouts(
           data.notification_time || null
         ]
       );
-      
+
       return true;
     } catch (error) {
       console.error('Error creating recurring workout:', error);
       return false;
     }
   };
-  
+
   // Update an existing recurring workout
   const updateRecurringWorkout = async (
     recurringWorkoutId: number,
@@ -428,46 +427,46 @@ return await checkAndScheduleRecurringWorkouts(
       // Build the update query dynamically based on provided fields
       let updateFields = [];
       let params = [];
-      
+
       if (updates.recurring_interval !== undefined) {
         updateFields.push('recurring_interval = ?');
         params.push(updates.recurring_interval);
       }
-      
+
       if (updates.recurring_days !== undefined) {
         updateFields.push('recurring_days = ?');
         params.push(updates.recurring_days);
       }
-      
+
       if (updates.notification_enabled !== undefined) {
         updateFields.push('notification_enabled = ?');
         params.push(updates.notification_enabled ? 1 : 0);
       }
-      
+
       if (updates.notification_time !== undefined) {
         updateFields.push('notification_time = ?');
         params.push(updates.notification_time);
       }
-      
+
       if (updateFields.length === 0) {
         return false; // Nothing to update
       }
-      
+
       // Add the recurring workout ID to params
       params.push(recurringWorkoutId);
-      
+
       await db.runAsync(
         `UPDATE Recurring_Workouts SET ${updateFields.join(', ')} WHERE recurring_workout_id = ?;`,
         params
       );
-      
+
       return true;
     } catch (error) {
       console.error('Error updating recurring workout:', error);
       return false;
     }
   };
-  
+
   // Delete a recurring workout
   const deleteRecurringWorkout = async (recurringWorkoutId: number) => {
     try {
@@ -481,7 +480,7 @@ return await checkAndScheduleRecurringWorkouts(
       return false;
     }
   };
-  
+
   // Get all recurring workouts
   const getAllRecurringWorkouts = async () => {
     try {
@@ -493,7 +492,7 @@ return await checkAndScheduleRecurringWorkouts(
       return [];
     }
   };
-  
+
   return {
     checkRecurringWorkouts,
     createRecurringWorkout,

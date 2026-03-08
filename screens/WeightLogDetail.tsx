@@ -18,29 +18,29 @@ import { useSQLiteContext } from 'expo-sqlite';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useSettings } from '../context/SettingsContext';
-import { useTheme } from '../context/ThemeContext'; 
+import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 import deepCopy from '../utils/deepCopy';
 
 interface EditExerciseMetadata {
-    exerciseName: string;
-    workout_date: number;
-    logged_exercise_id: number;
+  exerciseName: string;
+  workout_date: number;
+  logged_exercise_id: number;
 }
 
 interface ExerciseLog {
-    weight_log_id: number;
-    weight_logged: string; 
-    reps_logged: string;
-    set_number: number; 
-    workout_date: number; 
-    day_name: string 
+  weight_log_id: number;
+  weight_logged: string;
+  reps_logged: string;
+  set_number: number;
+  workout_date: number;
+  day_name: string
 }
 
 export default function WeightLogDetail() {
   const route = useRoute();
-  
+
   const navigation = useNavigation();
   const { theme } = useTheme();
   const { t } = useTranslation(); // Initialize translations
@@ -78,10 +78,10 @@ export default function WeightLogDetail() {
   });
   const [editExerciseData, setEditExerciseData] = useState<ExerciseLog[]>([]);
   const updateExerciseWeightLog = (item: ExerciseLog,
-                                  val: string, 
-                                  updatedKeyName: 'weight_logged' | 'reps_logged',
-                                  index: number) => {
-    item[updatedKeyName] = val;  
+    val: string,
+    updatedKeyName: 'weight_logged' | 'reps_logged',
+    index: number) => {
+    item[updatedKeyName] = val;
 
     setEditExerciseData(prev => prev.map((value, i) => i === index ? item : value))
   }
@@ -132,7 +132,7 @@ export default function WeightLogDetail() {
          ORDER BY Workout_Log.workout_date DESC;`,
         [workoutName]
       );
-      
+
       setDays(result);
       setFilteredDays(result); // Initially show all days
     } catch (error) {
@@ -143,7 +143,7 @@ export default function WeightLogDetail() {
   const fetchWeights = async (dayName: string, workoutDate: number) => {
     try {
       console.log(`Fetching weights for day: ${dayName}, date: ${workoutDate}, workout: ${workoutName}`);
-      
+
       // First, try to get the workout_log_id
       const workoutLogResult = await db.getAllAsync<{ workout_log_id: number }>(
         `SELECT workout_log_id FROM Workout_Log 
@@ -151,15 +151,15 @@ export default function WeightLogDetail() {
          LIMIT 1;`,
         [dayName, workoutDate, workoutName]
       );
-      
+
       if (workoutLogResult.length === 0) {
         console.error('No workout_log_id found for the given day, date and workout name');
         return;
       }
-      
+
       const workout_log_id = workoutLogResult[0].workout_log_id;
       console.log(`Found workout_log_id: ${workout_log_id}`);
-      
+
       // Now fetch the weight logs
       const result = await db.getAllAsync<{
         exercise_name: string;
@@ -181,9 +181,9 @@ export default function WeightLogDetail() {
         ORDER BY Weight_Log.exercise_name, Weight_Log.set_number;`,
         [dayName, workoutDate, workoutName]
       );
-      
+
       console.log(`Found ${result.length} weight logs`);
-      
+
       if (result.length === 0) {
         // If no weight logs are found, check if there are logged exercises without weights
         const exercisesResult = await db.getAllAsync<{
@@ -199,29 +199,29 @@ export default function WeightLogDetail() {
            ORDER BY logged_exercise_id ASC;`,
           [workout_log_id]
         );
-        
+
         console.log(`Found ${exercisesResult.length} logged exercises without weights`);
-        
+
         if (exercisesResult.length > 0) {
           // Create placeholder logs for these exercises
           const placeholderLogs: { [key: string]: { loggedExerciseId: number; exerciseName: string; sets: any[]; muscle_group: string | null; } } = {};
-          
+
           exercisesResult.forEach(exercise => {
             const compositeKey = `${exercise.logged_exercise_id}_${exercise.exercise_name}`;
             placeholderLogs[compositeKey] = {
               loggedExerciseId: exercise.logged_exercise_id,
               exerciseName: exercise.exercise_name,
               muscle_group: exercise.muscle_group,
-              sets: [{ 
+              sets: [{
                 weight_log_id: -1,
-                set_number: 1, 
-                weight_logged: 0, 
+                set_number: 1,
+                weight_logged: 0,
                 reps_logged: exercise.reps,
-                note: 'No weight data recorded' 
+                note: 'No weight data recorded'
               }]
             };
           });
-          
+
           setLogs((prev) => ({
             ...prev,
             [`${dayName}_${workoutDate}`]: placeholderLogs,
@@ -235,7 +235,7 @@ export default function WeightLogDetail() {
         const groupedLogs = result.reduce((acc, log) => {
           const { logged_exercise_id, exercise_name, muscle_group, ...setDetails } = log;
           const compositeKey = `${logged_exercise_id}_${exercise_name}`;
-          
+
           if (!acc[compositeKey]) {
             acc[compositeKey] = {
               loggedExerciseId: logged_exercise_id,
@@ -294,16 +294,16 @@ export default function WeightLogDetail() {
     const today = new Date();
     const yesterday = new Date();
     const tomorrow = new Date();
-  
+
     yesterday.setDate(today.getDate() - 1); // Yesterday's date
     tomorrow.setDate(today.getDate() + 1); // Tomorrow's date
-  
+
     // Helper to compare dates without time
     const isSameDay = (d1: Date, d2: Date) =>
       d1.getDate() === d2.getDate() &&
       d1.getMonth() === d2.getMonth() &&
       d1.getFullYear() === d2.getFullYear();
-  
+
     // Check if the date matches today, yesterday, or tomorrow
     if (isSameDay(date, today)) {
       return t('Today');
@@ -312,12 +312,12 @@ export default function WeightLogDetail() {
     } else if (isSameDay(date, tomorrow)) {
       return t('Tomorrow');
     }
-  
+
     // Default date formatting based on user-selected format
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-  
+
     return dateFormat === 'mm-dd-yyyy'
       ? `${month}-${day}-${year}`
       : `${day}-${month}-${year}`;
@@ -327,12 +327,12 @@ export default function WeightLogDetail() {
     if (timestamp === null) {
       return '';
     }
-    
+
     // Format seconds into HH:MM:SS format
     const hrs = Math.floor(timestamp / 3600);
     const mins = Math.floor((timestamp % 3600) / 60);
     const secs = timestamp % 60;
-    
+
     return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
@@ -414,7 +414,7 @@ export default function WeightLogDetail() {
     const isExpanded = expandedDays[key] as boolean;
     const formattedDate = formatDate(workout_date);
     const formattedTime = formatTime(completion_time);
-  
+
     const confirmDeleteDay = () => {
       Alert.alert(
         t('deleteDayTitle'),
@@ -431,7 +431,7 @@ export default function WeightLogDetail() {
         ]
       );
     };
-  
+
     const deleteDayLogs = async (dayName: string, workoutDate: number) => {
       try {
         await db.runAsync(
@@ -443,14 +443,14 @@ export default function WeightLogDetail() {
            );`,
           [dayName, workoutDate]
         );
-  
+
         // Refresh days after deletion
         fetchDays();
       } catch (error) {
         console.error('Error deleting logs for day:', error);
       }
     };
-  
+
     return (
       <View key={key} style={[styles.logContainer, { backgroundColor: theme.card, borderColor: theme.border }]}>
         <TouchableOpacity
@@ -460,14 +460,14 @@ export default function WeightLogDetail() {
         >
           <View style={styles.titleContainer}>
             <View style={styles.dayNameColumn}>
-              <AutoSizeText 
+              <AutoSizeText
                 fontSize={20}
                 numberOfLines={2}
                 mode={ResizeTextMode.max_lines}
                 style={[styles.logDayName, { color: theme.text }]}>
                 {day_name}
               </AutoSizeText>
-              
+
               {completion_time && (
                 <View style={styles.timeContainer}>
                   <Ionicons name="time-outline" size={14} color={theme.text} style={styles.timeIcon} />
@@ -483,7 +483,7 @@ export default function WeightLogDetail() {
             </View>
           </View>
 
-          <AutoSizeText 
+          <AutoSizeText
             fontSize={18}
             numberOfLines={2}
             mode={ResizeTextMode.max_lines}
@@ -506,17 +506,17 @@ export default function WeightLogDetail() {
                   <View>
                     <TouchableOpacity onPress={() => openLogEditModal(exerciseName, sets, loggedExerciseId)}>
                       <View key={`${loggedExerciseId}_${exerciseName}`} style={styles.logItem}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginBottom: 5}}>
-                        <Text style={[styles.exerciseName, { color: theme.text }]}>
-                          {exerciseName}
-                        </Text>
-                        {muscleGroupInfo && muscleGroupInfo.value && (
-                          <View style={[styles.muscleGroupBadge, { backgroundColor: theme.card, borderColor: theme.border, marginLeft: 8 }]}>
-                            <Text style={[styles.muscleGroupBadgeText, { color: theme.text }]}>
-                              {muscleGroupInfo.label}
-                            </Text>
-                          </View>
-                        )}
+                        <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', marginBottom: 5 }}>
+                          <Text style={[styles.exerciseName, { color: theme.text }]}>
+                            {exerciseName}
+                          </Text>
+                          {muscleGroupInfo && muscleGroupInfo.value && (
+                            <View style={[styles.muscleGroupBadge, { backgroundColor: theme.card, borderColor: theme.border, marginLeft: 8 }]}>
+                              <Text style={[styles.muscleGroupBadgeText, { color: theme.text }]}>
+                                {muscleGroupInfo.label}
+                              </Text>
+                            </View>
+                          )}
                         </View>
                         {sets.map((set, index) => (
                           <Text
@@ -529,102 +529,103 @@ export default function WeightLogDetail() {
                       </View>
                     </TouchableOpacity>
                   </View>
-              )})}
+                )
+              })}
           </View>
         )}
       </View>
     );
   };
-  
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-    {/* Back Button */}
-    <TouchableOpacity
-      style={styles.backButton}
-      onPress={() => navigation.goBack()}
-    >
-      <Ionicons name="arrow-back" size={24} color={theme.text} />
-    </TouchableOpacity>
-  
-    <Text 
-    style={[styles.headerTitle, { color: theme.text }]}>{workoutName} {t('weightLog')}
-    </Text>
+      {/* Back Button */}
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={24} color={theme.text} />
+      </TouchableOpacity>
 
-     
-  
-    {/* Filter Buttons */}
-    <View style={styles.filterContainer}>
-      <TouchableOpacity
-        style={[styles.filterButton, { backgroundColor: theme.buttonBackground }]}
-        onPress={() => setDatePickerVisible({ start: true, end: false })}
-      >
-        <Ionicons name="calendar-outline" size={20} color={theme.buttonText} />
-        <Text style={[styles.filterButtonText, { color: theme.buttonText }]}>
-          {dateRange.start
-            ? `${t('dateFrom')} ${formatDate(dateRange.start.getTime() / 1000)}`
-            : t('pickStartDate')}
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[styles.filterButton, { backgroundColor: theme.buttonBackground }]}
-        onPress={() => setDatePickerVisible({ start: false, end: true })}
-      >
-        <Ionicons name="calendar-outline" size={20} color={theme.buttonText} />
-        <Text style={[styles.filterButtonText, { color: theme.buttonText }]}>
-          {dateRange.end
-            ? `${t('dateTo')} ${formatDate(dateRange.end.getTime() / 1000)}`
-            : t('pickEndDate')}
-        </Text>
-      </TouchableOpacity>
-    </View>
+      <Text
+        style={[styles.headerTitle, { color: theme.text }]}>{workoutName} {t('weightLog')}
+      </Text>
 
-  
-    {dateRange.start && dateRange.end && (
-      <TouchableOpacity
-        style={[styles.clearButton, { backgroundColor: theme.text }]}
-        onPress={clearDateSelection}
-      >
-        <Text style={[styles.clearButtonText, { color: theme.card }]}>{t('clearSelection')}</Text>
-      </TouchableOpacity>
-    )}
-  
-    {/* Date Pickers */}
-    {datePickerVisible.start && (
-      <DateTimePicker
-        value={dateRange.start || new Date()}
-        mode="date"
-        display="default"
-        onChange={(event, date) => {
-          setDatePickerVisible({ start: false, end: false });
-          if (date) setDateRange((prev) => ({ ...prev, start: date }));
-        }}
-      />
+
+
+      {/* Filter Buttons */}
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={[styles.filterButton, { backgroundColor: theme.buttonBackground }]}
+          onPress={() => setDatePickerVisible({ start: true, end: false })}
+        >
+          <Ionicons name="calendar-outline" size={20} color={theme.buttonText} />
+          <Text style={[styles.filterButtonText, { color: theme.buttonText }]}>
+            {dateRange.start
+              ? `${t('dateFrom')} ${formatDate(dateRange.start.getTime() / 1000)}`
+              : t('pickStartDate')}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.filterButton, { backgroundColor: theme.buttonBackground }]}
+          onPress={() => setDatePickerVisible({ start: false, end: true })}
+        >
+          <Ionicons name="calendar-outline" size={20} color={theme.buttonText} />
+          <Text style={[styles.filterButtonText, { color: theme.buttonText }]}>
+            {dateRange.end
+              ? `${t('dateTo')} ${formatDate(dateRange.end.getTime() / 1000)}`
+              : t('pickEndDate')}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+
+      {dateRange.start && dateRange.end && (
+        <TouchableOpacity
+          style={[styles.clearButton, { backgroundColor: theme.text }]}
+          onPress={clearDateSelection}
+        >
+          <Text style={[styles.clearButtonText, { color: theme.card }]}>{t('clearSelection')}</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Date Pickers */}
+      {datePickerVisible.start && (
+        <DateTimePicker
+          value={dateRange.start || new Date()}
+          mode="date"
+          display="default"
+          onChange={(event, date) => {
+            setDatePickerVisible({ start: false, end: false });
+            if (date) setDateRange((prev) => ({ ...prev, start: date }));
+          }}
+        />
       )}
       {datePickerVisible.end && (
-      <DateTimePicker
-        value={dateRange.end || new Date()}
-        mode="date"
-        display="default"
-        onChange={(event, date) => {
-          setDatePickerVisible({ start: false, end: false });
-          if (date) setDateRange((prev) => ({ ...prev, end: date }));
-        }}
+        <DateTimePicker
+          value={dateRange.end || new Date()}
+          mode="date"
+          display="default"
+          onChange={(event, date) => {
+            setDatePickerVisible({ start: false, end: false });
+            if (date) setDateRange((prev) => ({ ...prev, end: date }));
+          }}
         />
       )}
 
       <Text style={[styles.tipText, { color: theme.text }]}>{t('editExerciseTipText')}</Text>
-  
+
       {/* Logs */}
-       <FlatList
-         data={filteredDays}
-         keyExtractor={(item) => `${item.day_name}_${item.workout_date}`}
-         renderItem={({ item }) => renderDay(item)}
-         ListEmptyComponent={
-           <Text style={[styles.emptyText, { color: theme.text }]}>
-             {t('noLog')}
-           </Text>
-         }
-       />
+      <FlatList
+        data={filteredDays}
+        keyExtractor={(item) => `${item.day_name}_${item.workout_date}`}
+        renderItem={({ item }) => renderDay(item)}
+        ListEmptyComponent={
+          <Text style={[styles.emptyText, { color: theme.text }]}>
+            {t('noLog')}
+          </Text>
+        }
+      />
 
       <Modal visible={showLogEditModal} animationType="fade" onRequestClose={closeLogEditModal} transparent>
         {showLogEditModal && (
@@ -633,51 +634,51 @@ export default function WeightLogDetail() {
             barStyle={theme.type === 'light' ? 'light-content' : 'dark-content'}
           />
         )}
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={[styles.modalContainer, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
-              <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
-                <Text style={[styles.modalTitle, { color: theme.text, margin: 10, marginTop: 20 }]}>
-                  {t('editExerciseLog')}: {editExerciseMetadata.exerciseName} ({new Date(editExerciseMetadata.workout_date * 1000).toLocaleDateString()})
-                </Text>
-                <ScrollView style={{width: '100%'}} contentContainerStyle={{padding: 20}} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={true}>
-                  <FlatList data={editExerciseData} keyExtractor={(item, index) => item.weight_log_id !== -1 ? item.weight_log_id.toString() : (index * 100).toString()} renderItem={({item, index}) => {
-                    return (
-                      <View>
-                        <Text style={[{fontSize: 18, fontWeight: 600, color: theme.text}]}>{t("set")} {index+1}</Text>
-                        <Text style={[styles.inputLabel, { color: theme.text, marginTop: 15 }]}>{weightFormat}</Text>
-                        <TextInput
-                          style={[styles.input, { color: theme.text, backgroundColor: theme.background, borderColor: theme.border }]}
-                          placeholder={t('Weight') + ' (> 0)'}
-                          placeholderTextColor={theme.text}
-                          keyboardType="numeric"
-                          value={item['weight_logged'].toString()}
-                          onChangeText={(val) => updateExerciseWeightLog(item, val, 'weight_logged', index)}
-                        />
-                        <Text style={[styles.inputLabel, {color: theme.text, marginTop: 15}]}>{t('repsPlaceholder')}</Text>
-                        <TextInput
-                          style={[styles.input, { color: theme.text, backgroundColor: theme.background, borderColor: theme.border }]}
-                          placeholder={t('repsPlaceholder') + ' (> 0)'}
-                          placeholderTextColor={theme.text}
-                          keyboardType="numeric"
-                          value={item['reps_logged'].toString()}
-                          onChangeText={(val) => updateExerciseWeightLog(item, val, 'reps_logged', index)}
-                        />
-                      </View>
-                    )
-                  }}>
-                  </FlatList>
-                </ScrollView>
-                  <View style={[{padding: 20, display: 'flex', flexDirection: 'column', rowGap: 3}]}>
-                    <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.buttonBackground }]} onPress={saveEditedWorkoutLog}>
-                      <Text style={[styles.saveButtonText, { color: theme.buttonText }]}>{t('Save')}</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={[styles.cancelButton, { backgroundColor: theme.card }]} onPress={closeLogEditModal}>
-                      <Text style={[styles.cancelButtonText, { color: theme.text }]}>{t('Cancel')}</Text>
-                    </TouchableOpacity>
-                  </View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={[styles.modalContainer, { backgroundColor: 'rgba(0, 0, 0, 0.5)' }]}>
+            <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+              <Text style={[styles.modalTitle, { color: theme.text, margin: 10, marginTop: 20 }]}>
+                {t('editExerciseLog')}: {editExerciseMetadata.exerciseName} ({new Date(editExerciseMetadata.workout_date * 1000).toLocaleDateString()})
+              </Text>
+              <ScrollView style={{ width: '100%' }} contentContainerStyle={{ padding: 20 }} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={true}>
+                <FlatList data={editExerciseData} keyExtractor={(item, index) => item.weight_log_id !== -1 ? item.weight_log_id.toString() : (index * 100).toString()} renderItem={({ item, index }) => {
+                  return (
+                    <View>
+                      <Text style={[{ fontSize: 18, fontWeight: 600, color: theme.text }]}>{t("set")} {index + 1}</Text>
+                      <Text style={[styles.inputLabel, { color: theme.text, marginTop: 15 }]}>{weightFormat}</Text>
+                      <TextInput
+                        style={[styles.input, { color: theme.text, backgroundColor: theme.background, borderColor: theme.border }]}
+                        placeholder={t('Weight') + ' (> 0)'}
+                        placeholderTextColor={theme.text}
+                        keyboardType="numeric"
+                        value={item['weight_logged'].toString()}
+                        onChangeText={(val) => updateExerciseWeightLog(item, val, 'weight_logged', index)}
+                      />
+                      <Text style={[styles.inputLabel, { color: theme.text, marginTop: 15 }]}>{t('repsPlaceholder')}</Text>
+                      <TextInput
+                        style={[styles.input, { color: theme.text, backgroundColor: theme.background, borderColor: theme.border }]}
+                        placeholder={t('repsPlaceholder') + ' (> 0)'}
+                        placeholderTextColor={theme.text}
+                        keyboardType="numeric"
+                        value={item['reps_logged'].toString()}
+                        onChangeText={(val) => updateExerciseWeightLog(item, val, 'reps_logged', index)}
+                      />
+                    </View>
+                  )
+                }}>
+                </FlatList>
+              </ScrollView>
+              <View style={[{ padding: 20, display: 'flex', flexDirection: 'column', rowGap: 3 }]}>
+                <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.buttonBackground }]} onPress={saveEditedWorkoutLog}>
+                  <Text style={[styles.saveButtonText, { color: theme.buttonText }]}>{t('Save')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.cancelButton, { backgroundColor: theme.card }]} onPress={closeLogEditModal}>
+                  <Text style={[styles.cancelButtonText, { color: theme.text }]}>{t('Cancel')}</Text>
+                </TouchableOpacity>
               </View>
-              </View>
-          </TouchableWithoutFeedback>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
       </Modal>
     </View>
   );
@@ -694,7 +695,7 @@ const styles = StyleSheet.create({
   },
   tipText: {
     margin: 12, // Space above the text
-    textAlign: 'center', 
+    textAlign: 'center',
     fontSize: 14, // Smaller font size
     fontStyle: 'italic', // Italic for emphasis
   },
@@ -706,7 +707,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     textAlign: 'center',
     marginVertical: 20, // Adds spacing above and below the title
-  }, 
+  },
   filterContainer: {
     flexDirection: 'column', // Stack buttons vertically
     alignItems: 'center',
@@ -822,8 +823,8 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   muscleGroupBadgeText: {
-      fontSize: 12,
-      fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '600',
   },
   saveButton: {
     borderRadius: 8,

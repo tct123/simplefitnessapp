@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
-  ScrollView, 
-  Switch, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  Switch,
   TextInput,
   Platform,
   Modal,
@@ -65,13 +65,13 @@ export default function CreateRecurringWorkout() {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedWorkoutName, setSelectedWorkoutName] = useState<string>('');
   const [selectedDayName, setSelectedDayName] = useState<string>('');
-  
+
   // Interval selection states
-  const [intervalType, setIntervalType] = useState<'everyday'|'custom'|'weekly'>('everyday');
+  const [intervalType, setIntervalType] = useState<'everyday' | 'custom' | 'weekly'>('everyday');
   const [customDaysInterval, setCustomDaysInterval] = useState<string>('2');
   const [selectedWeekdays, setSelectedWeekdays] = useState<number[]>([]);
   const [showWeekdaySelector, setShowWeekdaySelector] = useState<boolean>(false);
-  
+
   // Notification states
   const [notificationsEnabled, setNotificationsEnabled] = useState<boolean>(false);
   const [notificationTime, setNotificationTime] = useState<Date>(() => {
@@ -80,7 +80,7 @@ export default function CreateRecurringWorkout() {
     return date;
   });
   const [showTimePicker, setShowTimePicker] = useState<boolean>(false);
-  
+
   // UI states
   const [showWorkoutList, setShowWorkoutList] = useState<boolean>(false);
   const [showDayList, setShowDayList] = useState<boolean>(false);
@@ -122,7 +122,7 @@ export default function CreateRecurringWorkout() {
       fetchDays(selectedWorkout);
       setSelectedDay(null);
       setSelectedDayName('');
-      
+
       // Find and set selected workout name
       const workout = workouts.find(w => w.workout_id === selectedWorkout);
       if (workout) {
@@ -200,7 +200,7 @@ export default function CreateRecurringWorkout() {
         'SELECT 1 FROM Recurring_Workouts WHERE workout_id = ? AND day_name = ?',
         [selectedWorkout, selectedDayName]
       );
-      
+
       if (existing) {
         Alert.alert(
           t('duplicateRecurringWorkout'),
@@ -210,22 +210,22 @@ export default function CreateRecurringWorkout() {
         return;
       }
     } catch (e) {
-        console.error("error checking for duplicates", e);
+      console.error("error checking for duplicates", e);
     }
 
     setIsLoading(true);
     console.log('DEBUG: Starting recurring workout creation process');
     console.log(`DEBUG: Selected Workout ID: ${selectedWorkout}, Name: ${selectedWorkoutName}`);
     console.log(`DEBUG: Selected Day ID: ${selectedDay}, Name: ${selectedDayName}`);
-    
+
     try {
       // Calculate interval and days
       const recurringInterval = getRecurringInterval();
       const recurringDays = getRecurringDays();
-      
+
       console.log(`DEBUG: Interval Type: ${intervalType}`);
       console.log(`DEBUG: Recurring Interval Value: ${recurringInterval}`);
-      
+
       if (intervalType === 'weekly') {
         console.log(`DEBUG: Selected Weekdays: ${selectedWeekdays.join(',')}`);
         console.log(`DEBUG: Recurring Days String: ${recurringDays}`);
@@ -234,15 +234,15 @@ export default function CreateRecurringWorkout() {
       }
 
       // Format notification time as string (HH:MM)
-      const timeString = notificationsEnabled 
-        ? `${String(notificationTime.getHours()).padStart(2, '0')}:${String(notificationTime.getMinutes()).padStart(2, '0')}` 
+      const timeString = notificationsEnabled
+        ? `${String(notificationTime.getHours()).padStart(2, '0')}:${String(notificationTime.getMinutes()).padStart(2, '0')}`
         : undefined;
-      
+
       console.log(`DEBUG: Notifications Enabled: ${notificationsEnabled}`);
       if (notificationsEnabled) {
         console.log(`DEBUG: Notification Time: ${timeString}`);
       }
-      
+
       console.log('DEBUG: Creating recurring workout with parameters:', {
         workout_id: selectedWorkout,
         workout_name: selectedWorkoutName,
@@ -252,7 +252,7 @@ export default function CreateRecurringWorkout() {
         notification_enabled: notificationsEnabled,
         notification_time: timeString
       });
-      
+
       // Create recurring workout
       const success = await createRecurringWorkout({
         workout_id: selectedWorkout,
@@ -266,7 +266,7 @@ export default function CreateRecurringWorkout() {
 
       if (success) {
         console.log('DEBUG: Successfully created recurring workout');
-        navigation.navigate('MyCalendar', {refresh: true});
+        navigation.navigate('MyCalendar', { refresh: true });
       } else {
         console.error('DEBUG: Failed to create recurring workout - returned false');
       }
@@ -281,7 +281,7 @@ export default function CreateRecurringWorkout() {
   // Check if form is valid and can be submitted
   const isFormValid = (): boolean => {
     if (!selectedWorkout || !selectedDay) return false;
-    
+
     if (intervalType === 'custom') {
       const interval = parseInt(customDaysInterval);
       if (interval < 1) return false;
@@ -318,7 +318,7 @@ export default function CreateRecurringWorkout() {
   };
 
   return (
-    <ScrollView 
+    <ScrollView
       style={[styles.container, { backgroundColor: theme.background }]}
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={{ paddingBottom: 40 }}
@@ -332,27 +332,27 @@ export default function CreateRecurringWorkout() {
       <Text style={[styles.title, { color: theme.text }]}>
         {t('createRecurringWorkout')}
       </Text>
-      
+
       <View style={styles.formContainer}>
         {/* Workout Selection */}
         <View style={[styles.selectionSection, { backgroundColor: theme.card }]}>
           <Text style={[styles.sectionTitle, { color: theme.text }]}>
             {t('selectWorkout')}
           </Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.selector}
             onPress={() => setShowWorkoutList(!showWorkoutList)}
           >
             <Text style={[styles.selectorText, { color: theme.text }]}>
               {selectedWorkoutName || t('selectWorkout')}
             </Text>
-            <Ionicons 
-              name={showWorkoutList ? "chevron-up" : "chevron-down"} 
-              size={22} 
-              color={theme.text} 
+            <Ionicons
+              name={showWorkoutList ? "chevron-up" : "chevron-down"}
+              size={22}
+              color={theme.text}
             />
           </TouchableOpacity>
-          
+
           {showWorkoutList && (
             <View style={styles.dropdownList}>
               {workouts.map(workout => (
@@ -360,8 +360,8 @@ export default function CreateRecurringWorkout() {
                   key={workout.workout_id}
                   style={[
                     styles.dropdownItem,
-                    selectedWorkout === workout.workout_id && 
-                    {backgroundColor: theme.buttonBackground}
+                    selectedWorkout === workout.workout_id &&
+                    { backgroundColor: theme.buttonBackground }
                   ]}
                   onPress={() => {
                     setSelectedWorkout(workout.workout_id);
@@ -373,7 +373,7 @@ export default function CreateRecurringWorkout() {
                       style={[
                         styles.dropdownText,
                         { color: theme.text },
-                        selectedWorkout === workout.workout_id && {color: theme.buttonText}
+                        selectedWorkout === workout.workout_id && { color: theme.buttonText }
                       ]}
                     >
                       {workout.workout_name}
@@ -387,27 +387,27 @@ export default function CreateRecurringWorkout() {
             </View>
           )}
         </View>
-        
+
         {/* Day Selection - only show if workout is selected */}
         {selectedWorkout && (
           <View style={[styles.selectionSection, { backgroundColor: theme.card }]}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
               {t('selectDay')}
             </Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.selector}
               onPress={() => setShowDayList(!showDayList)}
             >
               <Text style={[styles.selectorText, { color: theme.text }]}>
                 {selectedDayName || t('selectDay')}
               </Text>
-              <Ionicons 
-                name={showDayList ? "chevron-up" : "chevron-down"} 
-                size={22} 
-                color={theme.text} 
+              <Ionicons
+                name={showDayList ? "chevron-up" : "chevron-down"}
+                size={22}
+                color={theme.text}
               />
             </TouchableOpacity>
-            
+
             {showDayList && (
               <View style={styles.dropdownList}>
                 {days.map(day => (
@@ -415,8 +415,8 @@ export default function CreateRecurringWorkout() {
                     key={day.day_id}
                     style={[
                       styles.dropdownItem,
-                      selectedDay === day.day_id && 
-                      {backgroundColor: theme.buttonBackground}
+                      selectedDay === day.day_id &&
+                      { backgroundColor: theme.buttonBackground }
                     ]}
                     onPress={() => {
                       setSelectedDay(day.day_id);
@@ -428,7 +428,7 @@ export default function CreateRecurringWorkout() {
                         style={[
                           styles.dropdownText,
                           { color: theme.text },
-                          selectedDay === day.day_id && {color: theme.buttonText}
+                          selectedDay === day.day_id && { color: theme.buttonText }
                         ]}
                       >
                         {day.day_name}
@@ -443,20 +443,20 @@ export default function CreateRecurringWorkout() {
             )}
           </View>
         )}
-        
+
         {/* Recurring Interval Selection - only show if day is selected */}
         {selectedDay && (
           <View style={[styles.selectionSection, { backgroundColor: theme.card }]}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
               {t('recurringInterval')}
             </Text>
-            
+
             {/* Everyday option */}
             <TouchableOpacity
               style={[
                 styles.intervalOption,
-                intervalType === 'everyday' && 
-                {backgroundColor: theme.buttonBackground, borderColor: theme.buttonBackground}
+                intervalType === 'everyday' &&
+                { backgroundColor: theme.buttonBackground, borderColor: theme.buttonBackground }
               ]}
               onPress={() => setIntervalType('everyday')}
             >
@@ -464,7 +464,7 @@ export default function CreateRecurringWorkout() {
                 style={[
                   styles.intervalText,
                   { color: theme.text },
-                  intervalType === 'everyday' && {color: theme.buttonText}
+                  intervalType === 'everyday' && { color: theme.buttonText }
                 ]}
               >
                 {t('everyday')}
@@ -473,13 +473,13 @@ export default function CreateRecurringWorkout() {
                 <Ionicons name="checkmark" size={22} color={theme.buttonText} />
               )}
             </TouchableOpacity>
-            
+
             {/* Custom interval option */}
             <TouchableOpacity
               style={[
                 styles.intervalOptionWithInput,
-                intervalType === 'custom' && 
-                {backgroundColor: theme.buttonBackground, borderColor: theme.buttonBackground}
+                intervalType === 'custom' &&
+                { backgroundColor: theme.buttonBackground, borderColor: theme.buttonBackground }
               ]}
               onPress={() => setIntervalType('custom')}
             >
@@ -495,7 +495,7 @@ export default function CreateRecurringWorkout() {
                 <TextInput
                   style={[
                     styles.dayInput,
-                    { 
+                    {
                       color: intervalType === 'custom' ? theme.buttonText : theme.text,
                       borderColor: intervalType === 'custom' ? theme.buttonText : 'rgba(0, 0, 0, 0.1)',
                     }
@@ -512,20 +512,20 @@ export default function CreateRecurringWorkout() {
                     { color: intervalType === 'custom' ? theme.buttonText : theme.text },
                   ]}
                 >
-                 {t('days')}
+                  {t('days')}
                 </Text>
               </View>
               {intervalType === 'custom' && (
                 <Ionicons name="checkmark" size={22} color={theme.buttonText} />
               )}
             </TouchableOpacity>
-            
+
             {/* Weekly selection option */}
             <TouchableOpacity
               style={[
                 styles.intervalOption,
-                intervalType === 'weekly' && 
-                {backgroundColor: theme.buttonBackground, borderColor: theme.buttonBackground}
+                intervalType === 'weekly' &&
+                { backgroundColor: theme.buttonBackground, borderColor: theme.buttonBackground }
               ]}
               onPress={() => {
                 setIntervalType('weekly');
@@ -536,7 +536,7 @@ export default function CreateRecurringWorkout() {
                 style={[
                   styles.intervalText,
                   { color: theme.text },
-                  intervalType === 'weekly' && {color: theme.buttonText}
+                  intervalType === 'weekly' && { color: theme.buttonText }
                 ]}
               >
                 {t('specificDaysOfWeek')}
@@ -545,10 +545,10 @@ export default function CreateRecurringWorkout() {
                 <Ionicons name="checkmark" size={22} color={theme.buttonText} />
               )}
             </TouchableOpacity>
-            
+
             {/* Show selected days summary if weekly is selected */}
             {intervalType === 'weekly' && selectedWeekdays.length > 0 && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.selectedDaysSummary}
                 onPress={() => setShowWeekdaySelector(true)}
               >
@@ -560,7 +560,7 @@ export default function CreateRecurringWorkout() {
                 </Text>
               </TouchableOpacity>
             )}
-            
+
             {/* Days of week selector modal */}
             <Modal
               visible={showWeekdaySelector}
@@ -572,20 +572,20 @@ export default function CreateRecurringWorkout() {
                   <Text style={[styles.modalTitle, { color: theme.text }]}>
                     {t('selectDaysOfWeek')}
                   </Text>
-                  
+
                   {DAYS_OF_WEEK.map(day => (
                     <TouchableOpacity
                       key={day.id}
                       style={[
                         styles.weekdayOption,
-                        selectedWeekdays.includes(day.id) && 
+                        selectedWeekdays.includes(day.id) &&
                         { backgroundColor: theme.buttonBackground }
                       ]}
                       onPress={() => toggleWeekday(day.id)}
                     >
-                      <Text 
+                      <Text
                         style={[
-                          styles.weekdayText, 
+                          styles.weekdayText,
                           { color: selectedWeekdays.includes(day.id) ? theme.buttonText : theme.text }
                         ]}
                       >
@@ -596,7 +596,7 @@ export default function CreateRecurringWorkout() {
                       )}
                     </TouchableOpacity>
                   ))}
-                  
+
                   <TouchableOpacity
                     style={[styles.saveButton, { backgroundColor: theme.buttonBackground }]}
                     onPress={() => setShowWeekdaySelector(false)}
@@ -610,14 +610,14 @@ export default function CreateRecurringWorkout() {
             </Modal>
           </View>
         )}
-        
+
         {/* Notification Settings - only show if interval is selected */}
         {selectedDay && (
           <View style={[styles.notificationSection, { backgroundColor: theme.card }]}>
             <Text style={[styles.sectionTitle, { color: theme.text }]}>
               {t('notifications')}
             </Text>
-            
+
             <View style={styles.switchRow}>
               <Text style={[styles.switchLabel, { color: theme.text }]}>
                 {t('enableNotifications')}
@@ -629,9 +629,9 @@ export default function CreateRecurringWorkout() {
                 thumbColor={'#f4f3f4'}
               />
             </View>
-            
+
             {notificationsEnabled && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.timeSelector}
                 onPress={() => setShowTimePicker(true)}
               >
@@ -641,7 +641,7 @@ export default function CreateRecurringWorkout() {
                 <Ionicons name="time-outline" size={22} color={theme.text} />
               </TouchableOpacity>
             )}
-            
+
             {showTimePicker && (
               <DateTimePicker
                 value={notificationTime}
@@ -658,7 +658,7 @@ export default function CreateRecurringWorkout() {
         {isFormValid() && (
           <TouchableOpacity
             style={[
-              styles.createButton, 
+              styles.createButton,
               { backgroundColor: theme.buttonBackground },
               isLoading && { opacity: 0.7 }
             ]}

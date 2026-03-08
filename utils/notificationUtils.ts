@@ -32,12 +32,12 @@ export const requestNotificationPermissions = async (): Promise<boolean> => {
   // Request permission
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
-  
+
   if (existingStatus !== 'granted') {
     const { status } = await Notifications.requestPermissionsAsync();
     finalStatus = status;
   }
-  
+
   return finalStatus === 'granted';
 };
 
@@ -84,11 +84,11 @@ export const scheduleWorkoutNotification = async ({
       content: {
         title: i18n.t('workoutReminderTitle', { workoutName: workoutName }),
         body: i18n.t('workoutReminderBody', { dayName: dayName }),
-        data: { 
-          workoutName, 
-          dayName, 
+        data: {
+          workoutName,
+          dayName,
           scheduledDate: scheduledDate.toISOString(),
-          }
+        }
       },
       trigger: {
         date: triggerDate,

@@ -38,7 +38,7 @@ i18n
       cs: { translation: cs },
       de: { translation: de },
       dk: { translation: dk },
-      el: {translation:  el },
+      el: { translation: el },
       en: { translation: en },
       es: { translation: es },
       fi: { translation: fi },
@@ -59,7 +59,7 @@ i18n
       zh: { translation: zh },
       // add more languages here #1
     },
-    
+
     lng: defaultLocale, // Use the language code of the first locale
     fallbackLng, // Fallback to English if no translations are found
     interpolation: {

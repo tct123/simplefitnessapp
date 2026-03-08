@@ -1,4 +1,4 @@
-import React, { useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
-import { useNavigation, useRoute, RouteProp} from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { useSQLiteContext } from 'expo-sqlite';
 import { WorkoutLog, LoggedExercise } from '../utils/types';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -21,7 +21,7 @@ type LogWeightsRouteProp = RouteProp<WeightLogStackParamList, 'LogWeights'>;
 
 export default function LogWeights() {
   const db = useSQLiteContext();
-  
+
   const navigation = useNavigation();
   const route = useRoute<LogWeightsRouteProp>();
 
@@ -135,16 +135,16 @@ export default function LogWeights() {
     const today = new Date();
     const yesterday = new Date();
     const tomorrow = new Date();
-  
+
     yesterday.setDate(today.getDate() - 1); // Yesterday's date
     tomorrow.setDate(today.getDate() + 1); // Tomorrow's date
-  
+
     // Helper to compare dates without time
     const isSameDay = (d1: Date, d2: Date) =>
       d1.getDate() === d2.getDate() &&
       d1.getMonth() === d2.getMonth() &&
       d1.getFullYear() === d2.getFullYear();
-  
+
     // Check if the date matches today, yesterday, or tomorrow
     if (isSameDay(date, today)) {
       return t('Today');
@@ -153,19 +153,19 @@ export default function LogWeights() {
     } else if (isSameDay(date, tomorrow)) {
       return t('Tomorrow');
     }
-  
+
     // Default date formatting based on user-selected format
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-  
+
     return dateFormat === 'mm-dd-yyyy'
       ? `${month}-${day}-${year}`
       : `${day}-${month}-${year}`;
   };
-  
 
-  
+
+
   const addSet = (exerciseId: string) => {
     setExerciseSets((prev) => {
       const currentSets = prev[exerciseId] || [];
@@ -285,7 +285,7 @@ export default function LogWeights() {
         {exerciseSets[exercise.logged_exercise_id]?.map((setNumber) => {
           const weightKey = `${exercise.logged_exercise_id}_${setNumber}`;
           const repsKey = `${exercise.logged_exercise_id}_${setNumber}`;
-    
+
           return (
             <SetInputRow
               key={`${exercise.logged_exercise_id}_${setNumber}`}
@@ -306,63 +306,63 @@ export default function LogWeights() {
       </View>
     );
   };
-  
+
 
   return (
 
-<KeyboardAwareScrollView
+    <KeyboardAwareScrollView
       style={{ flex: 1, backgroundColor: theme.background }}
       contentContainerStyle={{ flexGrow: 1, padding: 20 }}
       enableOnAndroid={true}
     >
 
-  
-<TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-    <Ionicons name="arrow-back" size={24} color={theme.text} />
-  </TouchableOpacity>
 
-  <Text style={[styles.title, { color: theme.text }]}>{t('trackWeights')}</Text>
-      
-
-  {!selectedWorkout ? (
-    <KeyboardAwareFlatList
-      scrollEnabled={false}
-      data={workouts}
-      keyExtractor={(item) => item.workout_log_id.toString()}
-      renderItem={({ item }) => (
-        <TouchableOpacity
-          style={[styles.workoutContainer, { backgroundColor: theme.card, borderColor: theme.border }]}
-          onPress={() => {
-            setSelectedWorkout(item);
-            fetchExercises(item.workout_log_id);
-          }}
-        >
-          <Text style={[styles.workoutName, { color: theme.text }]}>{item.workout_name}</Text>
-          <Text style={[styles.dayName, { color: theme.text }]}>{item.day_name}</Text>
-          <Text style={[styles.workoutDate, { color: theme.text }]}>{formatDate(item.workout_date)} </Text>
-        </TouchableOpacity>
-      )}
-      ListEmptyComponent={
-        <Text style={[styles.emptyText, { color: theme.text }]}>{t('noWorkoutScheduled')}</Text>
-      }
-    />
-  ) : (
-    <>
-      <KeyboardAwareFlatList
-        scrollEnabled={false}
-        data={exercises}
-        keyExtractor={(item) => item.logged_exercise_id.toString()}
-        renderItem={({ item }) => renderExercise(item)}
-        ListEmptyComponent={
-          <Text style={[styles.emptyText, { color: theme.text }]}>{t('noExercises')}</Text>
-        }
-      />
-      <Text style={[styles.tipText, { color: theme.text, marginBottom: 10 }]}>{t('logWeightsTipText')}</Text>
-      <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.buttonBackground }]} onPress={logWeights}>
-        <Text style={[styles.saveButtonText, { color: theme.buttonText }]}>{t('trackWeights')}</Text>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={24} color={theme.text} />
       </TouchableOpacity>
-    </>
-  )}
+
+      <Text style={[styles.title, { color: theme.text }]}>{t('trackWeights')}</Text>
+
+
+      {!selectedWorkout ? (
+        <KeyboardAwareFlatList
+          scrollEnabled={false}
+          data={workouts}
+          keyExtractor={(item) => item.workout_log_id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[styles.workoutContainer, { backgroundColor: theme.card, borderColor: theme.border }]}
+              onPress={() => {
+                setSelectedWorkout(item);
+                fetchExercises(item.workout_log_id);
+              }}
+            >
+              <Text style={[styles.workoutName, { color: theme.text }]}>{item.workout_name}</Text>
+              <Text style={[styles.dayName, { color: theme.text }]}>{item.day_name}</Text>
+              <Text style={[styles.workoutDate, { color: theme.text }]}>{formatDate(item.workout_date)} </Text>
+            </TouchableOpacity>
+          )}
+          ListEmptyComponent={
+            <Text style={[styles.emptyText, { color: theme.text }]}>{t('noWorkoutScheduled')}</Text>
+          }
+        />
+      ) : (
+        <>
+          <KeyboardAwareFlatList
+            scrollEnabled={false}
+            data={exercises}
+            keyExtractor={(item) => item.logged_exercise_id.toString()}
+            renderItem={({ item }) => renderExercise(item)}
+            ListEmptyComponent={
+              <Text style={[styles.emptyText, { color: theme.text }]}>{t('noExercises')}</Text>
+            }
+          />
+          <Text style={[styles.tipText, { color: theme.text, marginBottom: 10 }]}>{t('logWeightsTipText')}</Text>
+          <TouchableOpacity style={[styles.saveButton, { backgroundColor: theme.buttonBackground }]} onPress={logWeights}>
+            <Text style={[styles.saveButtonText, { color: theme.buttonText }]}>{t('trackWeights')}</Text>
+          </TouchableOpacity>
+        </>
+      )}
     </KeyboardAwareScrollView>
 
   );
@@ -418,7 +418,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   adContainer: {
-  alignItems : 'center',
+    alignItems: 'center',
   },
   backButton: {
 
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   emptyText: {
-    marginTop:80,
+    marginTop: 80,
     textAlign: 'center',
     color: '#666666',
     fontSize: 16,
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   muscleGroupBadgeText: {
-      fontSize: 12,
-      fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '600',
   },
 });

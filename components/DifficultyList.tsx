@@ -19,7 +19,7 @@ export default function DifficultyList({
   const navigation = useNavigation<WorkoutListNavigationProp>();
   const { theme } = useTheme(); // Get the current theme
   const { t } = useTranslation(); // Initialize translations
-  
+
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.background }]}>
@@ -27,54 +27,54 @@ export default function DifficultyList({
       <Text style={[styles.title, { color: theme.text }]}>{t('Difficulty')}</Text>
 
       <TouchableOpacity
-          style={[
-            styles.workoutCard,
-            {
-              backgroundColor: theme.card,
-              borderColor: theme.border,
- 
-            },
-          ]}
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate('Template', { workout_difficulty: 'Beginner' })}
->
-          <Text style={[styles.workoutText, { color: theme.text }]}>{t('Beginner')}</Text>
-          <Ionicons name="chevron-forward" size={20} color={theme.text} />
-        </TouchableOpacity>
+        style={[
+          styles.workoutCard,
+          {
+            backgroundColor: theme.card,
+            borderColor: theme.border,
 
-        <TouchableOpacity
-          style={[
-            styles.workoutCard,
-            {
-              backgroundColor: theme.card,
-              borderColor: theme.border,
-            },
-          ]}
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate('Template', { workout_difficulty: 'Intermediate' })}
->
-          <Text style={[styles.workoutText, { color: theme.text }]}>{t('Intermediate')}</Text>
-          <Ionicons name="chevron-forward" size={20} color={theme.text} />
-        </TouchableOpacity>
+          },
+        ]}
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate('Template', { workout_difficulty: 'Beginner' })}
+      >
+        <Text style={[styles.workoutText, { color: theme.text }]}>{t('Beginner')}</Text>
+        <Ionicons name="chevron-forward" size={20} color={theme.text} />
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.workoutCard,
-            {
-              backgroundColor: theme.card,
-              borderColor: theme.border,
+      <TouchableOpacity
+        style={[
+          styles.workoutCard,
+          {
+            backgroundColor: theme.card,
+            borderColor: theme.border,
+          },
+        ]}
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate('Template', { workout_difficulty: 'Intermediate' })}
+      >
+        <Text style={[styles.workoutText, { color: theme.text }]}>{t('Intermediate')}</Text>
+        <Ionicons name="chevron-forward" size={20} color={theme.text} />
+      </TouchableOpacity>
 
-            },
-          ]}
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate('Template', { workout_difficulty: 'Advanced' })}
->
-          <Text style={[styles.workoutText, { color: theme.text }]}>{t('Advanced')}</Text>
-          <Ionicons name="chevron-forward" size={20} color={theme.text} />
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={[
+          styles.workoutCard,
+          {
+            backgroundColor: theme.card,
+            borderColor: theme.border,
+
+          },
+        ]}
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate('Template', { workout_difficulty: 'Advanced' })}
+      >
+        <Text style={[styles.workoutText, { color: theme.text }]}>{t('Advanced')}</Text>
+        <Ionicons name="chevron-forward" size={20} color={theme.text} />
+      </TouchableOpacity>
 
 
-    
+
     </ScrollView>
   );
 }
@@ -92,7 +92,7 @@ const styles = StyleSheet.create({
     fontWeight: '900', // Extra bold
     marginBottom: 24,
     textAlign: 'center', // Centered text
-  
+
   },
 
 

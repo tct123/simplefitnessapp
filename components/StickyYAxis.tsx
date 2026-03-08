@@ -29,10 +29,10 @@ const StickyYAxis: React.FC<StickyYAxisProps> = ({
   const baseHeightForLinesAndLabels = chartHeight - xLabelsHeightApproximation - chartPaddingTop;
 
   return (
-    <View style={[styles.yAxisContainer, { height: chartHeight, width: axisWidth, position: 'absolute', left: 0, top: 0}]}>
+    <View style={[styles.yAxisContainer, { height: chartHeight, width: axisWidth, position: 'absolute', left: 0, top: 0 }]}>
       {yTickLabels.map((label, index) => {
         const yPosition = chartPaddingTop + (index * (baseHeightForLinesAndLabels / numberOfSegments));
-        
+
         return (
           <Text
             key={`y-label-${index}`}

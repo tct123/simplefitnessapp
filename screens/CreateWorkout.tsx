@@ -157,13 +157,13 @@ export default function CreateWorkout() {
   const handleSaveWorkout = async () => {
     if (!workoutName.trim()) {
       Alert.alert(t('errorTitle'),
-      t('workoutNameErrorMessage'));
+        t('workoutNameErrorMessage'));
       return;
     }
 
     if (days.some((day) => !day.dayName.trim())) {
       Alert.alert(t('errorTitle'),
-      t('provideDayNamesErrorMessage'));
+        t('provideDayNamesErrorMessage'));
       return;
     }
 
@@ -171,11 +171,11 @@ export default function CreateWorkout() {
       days.some((day) =>
         day.exercises.some(
           (exercise) =>
-          !exercise.exerciseName.trim() || // Exercise name must not be empty
-          !exercise.sets || // Sets field must not be empty
-          !exercise.reps || // Reps field must not be empty
-          parseInt(exercise.sets, 10) === 0 || // Sets must not be zero
-          parseInt(exercise.reps, 10) === 0 // Reps must not be zero
+            !exercise.exerciseName.trim() || // Exercise name must not be empty
+            !exercise.sets || // Sets field must not be empty
+            !exercise.reps || // Reps field must not be empty
+            parseInt(exercise.sets, 10) === 0 || // Sets must not be zero
+            parseInt(exercise.reps, 10) === 0 // Reps must not be zero
         )
       )
     ) {
@@ -217,7 +217,7 @@ export default function CreateWorkout() {
           contentContainerStyle={styles.contentContainer}
           ListHeaderComponent={
             <>
-        
+
               <View style={styles.header}>
                 <TouchableOpacity
                   style={styles.backButton}
@@ -228,7 +228,7 @@ export default function CreateWorkout() {
                 <Text style={[styles.title, { color: theme.text }]}>{t('CreateAWorkout')}</Text>
               </View>
 
-        
+
               <TextInput
                 style={[
                   styles.input,
@@ -289,7 +289,7 @@ export default function CreateWorkout() {
                       value={exercise.exerciseName}
                       onChangeText={(text) => {
                         const updatedDays = [...days];
-        updatedDays[index].exercises[exerciseIndex].exerciseName =
+                        updatedDays[index].exercises[exerciseIndex].exerciseName =
                           text;
                         setDays(updatedDays);
                       }}
@@ -349,7 +349,7 @@ export default function CreateWorkout() {
                         <TouchableOpacity
                           style={[
                             styles.muscleGroupButton,
-                            { 
+                            {
                               backgroundColor: isSelected ? theme.buttonBackground : theme.card,
                               borderColor: theme.border,
                             }

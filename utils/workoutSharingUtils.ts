@@ -108,54 +108,54 @@ export const exportWorkout = async (db: any, workoutId: number) => {
  * @returns {Promise<boolean>} - True if import was successful, false otherwise.
  */
 export const importWorkout = async (db: any, jsonString: string): Promise<boolean> => {
-    try {
-      const workoutData: ExportedWorkout = JSON.parse(jsonString);
-  
-      // Basic validation
-      if (!workoutData.workout_name || !Array.isArray(workoutData.days)) {
-        throw new Error('Invalid workout data format.');
-      }
-      
-      // Check if workout name already exists
-      const workoutName = workoutData.workout_name;
-      const existingWorkout = await db.getFirstAsync('SELECT workout_id FROM Workouts WHERE workout_name = ?', [workoutName]);
+  try {
+    const workoutData: ExportedWorkout = JSON.parse(jsonString);
 
-      if (existingWorkout) {
-        Alert.alert(i18n.t('importFailedTitle'), i18n.t('workoutAlreadyExistsError'));
-        return false;
-      }
-  
-      await db.withTransactionAsync(async () => {
-        // Insert workout
-        const workoutResult = await db.runAsync('INSERT INTO Workouts (workout_name) VALUES (?)', [workoutName]);
-        const newWorkoutId = workoutResult.lastInsertRowId;
-  
-        if (!newWorkoutId) {
-          throw new Error('Failed to create new workout.');
-        }
-  
-        // Insert days and exercises
-        for (const day of workoutData.days) {
-          const dayResult = await db.runAsync('INSERT INTO Days (workout_id, day_name) VALUES (?, ?)', [newWorkoutId, day.day_name]);
-          const newDayId = dayResult.lastInsertRowId;
-  
-          if (!newDayId) {
-            throw new Error(`Failed to create day: ${day.day_name}`);
-          }
-  
-          for (const exercise of day.exercises) {
-            await db.runAsync(
-              'INSERT INTO Exercises (day_id, exercise_name, sets, reps, web_link, muscle_group, exercise_notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
-              [newDayId, exercise.exercise_name, exercise.sets, exercise.reps, exercise.web_link || null, exercise.muscle_group || null, exercise.exercise_notes || null]
-            );
-          }
-        }
-      });
-  
-      return true;
-    } catch (error) {
-      console.error('Error importing workout:', error);
-      Alert.alert(i18n.t('importFailedTitle'), i18n.t('fileNotSelectedError'));
+    // Basic validation
+    if (!workoutData.workout_name || !Array.isArray(workoutData.days)) {
+      throw new Error('Invalid workout data format.');
+    }
+
+    // Check if workout name already exists
+    const workoutName = workoutData.workout_name;
+    const existingWorkout = await db.getFirstAsync('SELECT workout_id FROM Workouts WHERE workout_name = ?', [workoutName]);
+
+    if (existingWorkout) {
+      Alert.alert(i18n.t('importFailedTitle'), i18n.t('workoutAlreadyExistsError'));
       return false;
     }
-  }; 
+
+    await db.withTransactionAsync(async () => {
+      // Insert workout
+      const workoutResult = await db.runAsync('INSERT INTO Workouts (workout_name) VALUES (?)', [workoutName]);
+      const newWorkoutId = workoutResult.lastInsertRowId;
+
+      if (!newWorkoutId) {
+        throw new Error('Failed to create new workout.');
+      }
+
+      // Insert days and exercises
+      for (const day of workoutData.days) {
+        const dayResult = await db.runAsync('INSERT INTO Days (workout_id, day_name) VALUES (?, ?)', [newWorkoutId, day.day_name]);
+        const newDayId = dayResult.lastInsertRowId;
+
+        if (!newDayId) {
+          throw new Error(`Failed to create day: ${day.day_name}`);
+        }
+
+        for (const exercise of day.exercises) {
+          await db.runAsync(
+            'INSERT INTO Exercises (day_id, exercise_name, sets, reps, web_link, muscle_group, exercise_notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [newDayId, exercise.exercise_name, exercise.sets, exercise.reps, exercise.web_link || null, exercise.muscle_group || null, exercise.exercise_notes || null]
+          );
+        }
+      }
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error importing workout:', error);
+    Alert.alert(i18n.t('importFailedTitle'), i18n.t('fileNotSelectedError'));
+    return false;
+  }
+}; 

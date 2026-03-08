@@ -524,23 +524,23 @@ export default function MyCalendar() {
   const weekDays =
     firstWeekday === 'Monday'
       ? [
-          t('Mon'),
-          t('Tue'),
-          t('Wed'),
-          t('Thu'),
-          t('Fri'),
-          t('Sat'),
-          t('Sun'),
-        ]
+        t('Mon'),
+        t('Tue'),
+        t('Wed'),
+        t('Thu'),
+        t('Fri'),
+        t('Sat'),
+        t('Sun'),
+      ]
       : [
-          t('Sun'),
-          t('Mon'),
-          t('Tue'),
-          t('Wed'),
-          t('Thu'),
-          t('Fri'),
-          t('Sat'),
-        ];
+        t('Sun'),
+        t('Mon'),
+        t('Tue'),
+        t('Wed'),
+        t('Thu'),
+        t('Fri'),
+        t('Sat'),
+      ];
 
   const renderCalendarGrid = () => {
     const gridItems = [];
@@ -675,26 +675,26 @@ export default function MyCalendar() {
 
       <View style={styles.buttonRow}>
         <TouchableOpacity
-            style={[
-              styles.actionButton,
-              { backgroundColor: theme.buttonBackground },
-            ]}
-            onPress={() =>
-              navigation.navigate('LogWorkout', {
-                selectedDate: new Date().toISOString(),
-              })
-            }
-          >
-            <Ionicons
-              name='flash'
-              size={scale(22)}
-              color={theme.buttonText}
-              style={styles.icon}
-            />
-            <Text style={[styles.actionButtonText, { color: theme.buttonText }]}>
-              {t('quickWorkout')}
-            </Text>
-          </TouchableOpacity>
+          style={[
+            styles.actionButton,
+            { backgroundColor: theme.buttonBackground },
+          ]}
+          onPress={() =>
+            navigation.navigate('LogWorkout', {
+              selectedDate: new Date().toISOString(),
+            })
+          }
+        >
+          <Ionicons
+            name='flash'
+            size={scale(22)}
+            color={theme.buttonText}
+            style={styles.icon}
+          />
+          <Text style={[styles.actionButtonText, { color: theme.buttonText }]}>
+            {t('quickWorkout')}
+          </Text>
+        </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.actionButton,
@@ -826,12 +826,12 @@ export default function MyCalendar() {
           setDetailedWorkout(null);
         }}
       >
-         {modalVisible && (
+        {modalVisible && (
           <StatusBar
             backgroundColor={theme.type === 'light' ? "rgba(0, 0, 0, 0.5)" : "black"}
-            barStyle={'light-content'}          />
+            barStyle={'light-content'} />
         )}
-        
+
         <View
           style={[
             styles.modalContainer,
@@ -1117,10 +1117,10 @@ export default function MyCalendar() {
       >
 
 
-    {untrackedChoiceModalVisible && (
+        {untrackedChoiceModalVisible && (
           <StatusBar
             backgroundColor={theme.type === 'light' ? "rgba(0, 0, 0, 0.5)" : "black"}
-            barStyle={'light-content'}          />
+            barStyle={'light-content'} />
         )}
 
 

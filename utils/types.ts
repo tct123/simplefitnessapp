@@ -10,29 +10,29 @@ export interface TemplateWorkouts {
 
 // Interface for the Workouts table
 export interface Workout {
-    workout_id: number;
-    workout_name: string;
-  }
-  
-  // Interface for the Days table
-  export interface Day {
-    day_id: number;
-    workout_id: number; // Foreign key to Workouts
-    day_name: string; // Unique per workout
-  }
-  
-  // Interface for the Exercises table
-  export interface Exercise {
-    exercise_id: number;
-    day_id: number; // Foreign key to Days
-    exercise_name: string;
-    sets: number;
-    reps: number;
-    muscle_group: string | null;
-    web_link: string | null;
-    exercise_notes: string | null;
-  }
-  
+  workout_id: number;
+  workout_name: string;
+}
+
+// Interface for the Days table
+export interface Day {
+  day_id: number;
+  workout_id: number; // Foreign key to Workouts
+  day_name: string; // Unique per workout
+}
+
+// Interface for the Exercises table
+export interface Exercise {
+  exercise_id: number;
+  day_id: number; // Foreign key to Days
+  exercise_name: string;
+  sets: number;
+  reps: number;
+  muscle_group: string | null;
+  web_link: string | null;
+  exercise_notes: string | null;
+}
+
 // Interface for the Workout_Log table
 export interface WorkoutLog {
   workout_log_id: number; // Primary Key
@@ -67,4 +67,3 @@ export interface WeightLog {
 }
 
 
-  

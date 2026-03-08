@@ -12,18 +12,18 @@ const LightTheme = {
   buttonBackground: '#000000',
   buttonText: '#FFFFFF',
   homeCardColor1: '#000000',
-  homeCardColor2:'#D3D3D3',
-  homeCardColor3:'#808080',
-  homeButtonColor1:'#FFFFFF',
-  homeButtonColor2:'#505050',
-  homeButtonColor3:'#000000',
+  homeCardColor2: '#D3D3D3',
+  homeCardColor3: '#808080',
+  homeButtonColor1: '#FFFFFF',
+  homeButtonColor2: '#505050',
+  homeButtonColor3: '#000000',
   homeButtonText1: '#000000',
-  homeButtonText2:'#FFFFFF',
-  homeButtonText3:'#FFFFFF',
+  homeButtonText2: '#FFFFFF',
+  homeButtonText3: '#FFFFFF',
   homeCardText1: 'white',
   homeCardText2: 'white',
   inactivetint: 'rgba(0, 0, 0, 0.2)',
-  logborder:'rgba(0, 0, 0, 0.2)',
+  logborder: 'rgba(0, 0, 0, 0.2)',
 };
 
 const DarkTheme = {
@@ -35,24 +35,24 @@ const DarkTheme = {
   buttonBackground: 'white',
   buttonText: 'black',
   homeCardColor1: '#1E1E1E',
-  homeCardColor2:'#1E1E1E',
-  homeCardColor3:'#1E1E1E',
-  homeButtonColor1:'#FFFFFF',
-  homeButtonColor2:'#FFFFFF',
-  homeButtonColor3:'#FFFFFF',
+  homeCardColor2: '#1E1E1E',
+  homeCardColor3: '#1E1E1E',
+  homeButtonColor1: '#FFFFFF',
+  homeButtonColor2: '#FFFFFF',
+  homeButtonColor3: '#FFFFFF',
   homeButtonText1: '#000000',
-  homeButtonText2:'#000000',
-  homeButtonText3:'#000000',
+  homeButtonText2: '#000000',
+  homeButtonText3: '#000000',
   homeCardText1: 'white',
   homeCardText2: 'white',
   inactivetint: 'rgba(245, 245, 245, 0.1)',
-  logborder:'rgba(245, 245, 245, 0.1)'
+  logborder: 'rgba(245, 245, 245, 0.1)'
 };
 
 // Context for theme management
 const ThemeContext = createContext({
   theme: LightTheme, // Default theme
-  toggleTheme: () => {}, // Default placeholder function
+  toggleTheme: () => { }, // Default placeholder function
 });
 
 type ThemeProviderProps = {
@@ -75,7 +75,7 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
       }
     };
     loadTheme();
-  }, []);
+  }, [themeFilePath]);
 
   const toggleTheme = async () => {
     const newTheme = theme === LightTheme ? DarkTheme : LightTheme;

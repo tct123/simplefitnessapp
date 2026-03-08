@@ -1,17 +1,14 @@
 // screens/Workouts.tsx
 
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Workout } from '../utils/types';
 import { useSQLiteContext } from 'expo-sqlite';
-import { Alert } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
-
+import { useFocusEffect, useRoute, useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import DifficultyList from '../components/DifficultyList';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { useRoute, useNavigation } from '@react-navigation/native';
 import { WorkoutStackParamList } from '../App';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { insertWorkouts } from '../utils/insertWorkouts'
@@ -31,15 +28,15 @@ type WorkoutListNavigationProp = StackNavigationProp<WorkoutStackParamList, 'Dif
 export default function Difficulty() {
   const [workouts, setWorkouts] = React.useState<Workout[]>([]);
   const db = useSQLiteContext();
-    const { theme } = useTheme();
-    const { t } = useTranslation(); // Initialize translations
-    const navigation = useNavigation<WorkoutListNavigationProp>();
-    const route = useRoute();
-    
+  const { theme } = useTheme();
+  const { t } = useTranslation(); // Initialize translations
+  const navigation = useNavigation<WorkoutListNavigationProp>();
+  const route = useRoute();
 
 
-   // Use useFocusEffect to fetch workouts when the screen is focused
-   useFocusEffect(
+
+  // Use useFocusEffect to fetch workouts when the screen is focused
+  useFocusEffect(
     React.useCallback(() => {
       const fetchData = async () => {
         await addTables(db);
@@ -47,7 +44,7 @@ export default function Difficulty() {
         // await insertTestData(db);
         await db.withTransactionAsync(getWorkouts);
       };
-        fetchData()
+      fetchData()
     }, [])
   );
 
@@ -80,19 +77,19 @@ export default function Difficulty() {
       ]
     );
   }
-  
+
 
   return (
 
 
-    
+
     <View style={[styles.container, { backgroundColor: theme.background }]}>
-       <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-    <Ionicons name="arrow-back" size={24} color={theme.text} />
-  </TouchableOpacity>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Ionicons name="arrow-back" size={24} color={theme.text} />
+      </TouchableOpacity>
       <DifficultyList workouts={workouts} deleteWorkout={deleteWorkout} />
     </View>
-    
+
   );
 }
 
@@ -103,15 +100,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: 'white',
   },
-  backButton: { 
-    position: 'absolute', 
-    top: 20, 
-    left: 10, 
-    padding: 8, 
-    zIndex: 10 },
+  backButton: {
+    position: 'absolute',
+    top: 20,
+    left: 10,
+    padding: 8,
+    zIndex: 10
+  },
   adContainer: {
     alignItems: 'center',
-    marginBottom:10,
+    marginBottom: 10,
   },
-  
+
 });

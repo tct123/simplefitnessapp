@@ -40,9 +40,9 @@ export const timerStateUtils = {
         ...timerState,
         timestamp: Date.now()
       };
-      
+
       await AsyncStorage.setItem(TIMER_STATE_KEY, JSON.stringify(stateWithTimestamp));
-      
+
       if (__DEV__) {
         console.log('Timer state saved:', stateWithTimestamp);
       }
@@ -58,17 +58,17 @@ export const timerStateUtils = {
   loadTimerState: async (): Promise<(TimerState & { timestamp: number }) | null> => {
     try {
       const stored = await AsyncStorage.getItem(TIMER_STATE_KEY);
-      
+
       if (!stored) {
         return null;
       }
-      
+
       const parsedState = JSON.parse(stored);
-      
+
       if (__DEV__) {
         console.log('Timer state loaded:', parsedState);
       }
-      
+
       return parsedState;
     } catch (error) {
       console.error('Error loading timer state:', error);
@@ -82,7 +82,7 @@ export const timerStateUtils = {
   clearTimerState: async (): Promise<void> => {
     try {
       await AsyncStorage.removeItem(TIMER_STATE_KEY);
-      
+
     } catch (error) {
       console.error('Error clearing timer state:', error);
     }
@@ -135,7 +135,7 @@ export const useTimerPersistence = (
           console.log('=== APP GOING TO BACKGROUND ===');
           console.log('Saving timer state:', timerState);
         }
-        
+
         await timerStateUtils.saveTimerState(timerState);
       }
       // Coming to foreground
@@ -143,7 +143,7 @@ export const useTimerPersistence = (
         if (debugMode) {
           console.log('=== APP RETURNING TO FOREGROUND ===');
         }
-        
+
         // Prevent multiple restoration attempts
         if (isRestoringRef.current) {
           if (debugMode) {
@@ -151,20 +151,20 @@ export const useTimerPersistence = (
           }
           return;
         }
-        
+
         isRestoringRef.current = true;
-        
+
         try {
           const savedState = await timerStateUtils.loadTimerState();
-          
+
           if (savedState && timerStateUtils.isValidTimerState(savedState)) {
             const elapsedSeconds = timerStateUtils.calculateElapsedTime(savedState.timestamp);
-            
+
             if (debugMode) {
               console.log('Elapsed time in background:', elapsedSeconds, 'seconds');
               console.log('Restoring state:', savedState);
             }
-            
+
             callbacks.onRestore(savedState, elapsedSeconds);
             await timerStateUtils.clearTimerState();
           } else if (debugMode) {
@@ -177,20 +177,20 @@ export const useTimerPersistence = (
     } catch (error) {
       const errorObj = error instanceof Error ? error : new Error(String(error));
       console.error('Error in app state change handler:', errorObj);
-      
+
       if (callbacks.onError) {
         callbacks.onError(errorObj);
       }
-      
+
       isRestoringRef.current = false;
     }
-    
+
     appState.current = nextAppState;
   }, [timerState, callbacks, enabled, debugMode]);
 
   useEffect(() => {
     const subscription = AppState.addEventListener('change', handleAppStateChange);
-    
+
     return () => {
       subscription.remove();
       // Clean up any stored state when component unmounts
@@ -271,7 +271,7 @@ export const timerCalculations = {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    
+
     return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   }
 };

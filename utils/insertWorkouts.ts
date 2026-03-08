@@ -1,20 +1,20 @@
 export const insertWorkouts = async (db: any) => {
-    try {
+  try {
 
-     
-        // Insert Workouts into Template_Workouts
-       await db.runAsync(
-          `INSERT OR IGNORE INTO Template_Workouts (workout_name, workout_difficulty)
+
+    // Insert Workouts into Template_Workouts
+    await db.runAsync(
+      `INSERT OR IGNORE INTO Template_Workouts (workout_name, workout_difficulty)
           VALUES 
           ('Push Pull Legs', 'Intermediate'),
           ('Newbie Gains', 'Beginner'),
           ('Bro Split', 'Advanced');`
-          
-        );
-  
-        // Insert Days into Template_Days
-      await  db.runAsync(
-          `INSERT OR IGNORE INTO Template_Days (workout_id, day_name)
+
+    );
+
+    // Insert Days into Template_Days
+    await db.runAsync(
+      `INSERT OR IGNORE INTO Template_Days (workout_id, day_name)
           VALUES 
           (1, 'Push Day'),
           (1, 'Pull Day'),
@@ -25,11 +25,11 @@ export const insertWorkouts = async (db: any) => {
           (3, 'Shoulders'),
           (3, 'Arms'),
           (3, 'Legs');`
-        );
-  
-        // Insert Exercises into Template_Exercises
-      await db.runAsync(          
-        `INSERT OR IGNORE INTO Template_Exercises (day_id, exercise_name, sets, reps, web_link, muscle_group)
+    );
+
+    // Insert Exercises into Template_Exercises
+    await db.runAsync(
+      `INSERT OR IGNORE INTO Template_Exercises (day_id, exercise_name, sets, reps, web_link, muscle_group)
           VALUES 
           (1, 'Bench Press', 6, 8, 'https://www.youtube.com/watch?v=gRVjAtPip0Y', 'chest'),
           (1, 'Incline Bench Press', 4, 8, 'https://www.youtube.com/watch?v=lJ2o89kcnxY', 'chest'),
@@ -77,19 +77,19 @@ export const insertWorkouts = async (db: any) => {
           (9, 'Leg Press', 6, 6, 'https://www.youtube.com/watch?v=nDh_BlnLCGc', 'legs'),
           (9, 'Leg Curl', 6, 12, 'https://www.youtube.com/watch?v=SiwJ_T62l9c', 'legs'),
           (9, 'Leg Extension', 6, 12, 'https://www.youtube.com/watch?v=m0FOpMEgero', 'legs');`
-        );
+    );
 
-        await db.runAsync(
-          `INSERT OR IGNORE INTO Template_Workouts (workout_name, workout_difficulty)
+    await db.runAsync(
+      `INSERT OR IGNORE INTO Template_Workouts (workout_name, workout_difficulty)
           VALUES 
           ('Upper Lower', 'Advanced'),
           ('Optimize!', 'Intermediate'),
           ('Split it!', 'Beginner');`
-      );
+    );
 
-      // Insert Days into Template_Days
-      await db.runAsync(
-          `INSERT OR IGNORE INTO Template_Days (workout_id, day_name)
+    // Insert Days into Template_Days
+    await db.runAsync(
+      `INSERT OR IGNORE INTO Template_Days (workout_id, day_name)
           VALUES 
           (4, 'Upper (Strength)'),
           (4, 'Lower (Strength)'),
@@ -100,11 +100,11 @@ export const insertWorkouts = async (db: any) => {
           (5, 'Legs'),
           (6, 'First Half'),
           (6, 'Second Half');`
-      );
+    );
 
-      // Insert Exercises into Template_Exercises
-      await db.runAsync(
-          `INSERT OR IGNORE INTO Template_Exercises (day_id, exercise_name, sets, reps, web_link, muscle_group)
+    // Insert Exercises into Template_Exercises
+    await db.runAsync(
+      `INSERT OR IGNORE INTO Template_Exercises (day_id, exercise_name, sets, reps, web_link, muscle_group)
           VALUES 
           -- Upper Lower: Upper (Strength)
           (10, 'Bench Press', 5, 5, 'https://www.youtube.com/watch?v=gRVjAtPip0Y', 'chest'),
@@ -172,33 +172,33 @@ export const insertWorkouts = async (db: any) => {
           (18, 'Goblet Squat', 3, 12, 'https://www.youtube.com/watch?v=0OWbS1WiUGU', 'legs'),
           (18, 'Hack Squat', 3, 12, 'https://www.youtube.com/watch?v=rYgNArpwE7E', 'legs'),
           (18, 'Triceps Pushdown', 3, 12, 'https://www.youtube.com/watch?v=1FjkhpZsaxc', 'triceps');`
-      );
-  
-        console.log('Initial  Template workouts inserted into the database.');
-        
-   // Insert more Workouts into Template_Workouts
-   await db.runAsync(
-    `INSERT OR IGNORE INTO Template_Workouts (workout_name, workout_difficulty)
+    );
+
+    console.log('Initial  Template workouts inserted into the database.');
+
+    // Insert more Workouts into Template_Workouts
+    await db.runAsync(
+      `INSERT OR IGNORE INTO Template_Workouts (workout_name, workout_difficulty)
     VALUES
     ('Home Alone', 'Beginner'),
     ('Calisthenics+', 'Intermediate'),
     ('Bodyweight Beast', 'Advanced');`
-  );
+    );
 
-  // Insert more Days into Template_Days
+    // Insert more Days into Template_Days
 
-  await db.runAsync(
-    `INSERT OR IGNORE INTO Template_Days (workout_id, day_name)
+    await db.runAsync(
+      `INSERT OR IGNORE INTO Template_Days (workout_id, day_name)
     VALUES
     (7, 'Home Alone Cycle'),
     (8, 'Calisthenics+ Cycle'),
     (9, 'Bodyweight Beast Cycle');`
-  );
+    );
 
-  // Insert more Exercises into Template_Exercises
-  
-  await db.runAsync(
-    `INSERT OR IGNORE INTO Template_Exercises (day_id, exercise_name, sets, reps, web_link, muscle_group)
+    // Insert more Exercises into Template_Exercises
+
+    await db.runAsync(
+      `INSERT OR IGNORE INTO Template_Exercises (day_id, exercise_name, sets, reps, web_link, muscle_group)
     VALUES
     -- Home Alone Exercises (day_id: 19)
     (19, 'Straight Push Ups', 4, 10, 'https://www.youtube.com/watch/4Bc1tPaYkOo', 'chest'),
@@ -228,15 +228,14 @@ export const insertWorkouts = async (db: any) => {
     (21, 'Hammer Curl', 4, 12, 'https://www.youtube.com/watch?v=VuEclXR7sZY', 'biceps'),
     (21, 'Jumping Lunge', 4, 12, 'https://www.youtube.com/watch?v=cIkkHg8YZQU', 'legs'),
     (21, 'Bulgarian Split Squats', 4, 12, 'https://www.youtube.com/watch?v=r3jzvjt-0l8', 'legs');`
-  );
+    );
 
-  console.log(
-    'Home Alone, Calisthenics+, and Bodyweight Beast workouts inserted into the database.'
-  );
+    console.log(
+      'Home Alone, Calisthenics+, and Bodyweight Beast workouts inserted into the database.'
+    );
 
 
-    } catch (error) {
-      console.error('Error inserting workouts:', error);
-    }
-  };
-  
+  } catch (error) {
+    console.error('Error inserting workouts:', error);
+  }
+};

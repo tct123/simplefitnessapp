@@ -29,7 +29,7 @@ export default function WorkoutList({
   const { t } = useTranslation(); // Initialize translations
   const db = useSQLiteContext();
   const sortedWorkouts = [...workouts].sort((a, b) => b.workout_id - a.workout_id);
-  
+
 
   const handleExportWorkout = (workoutId: number) => {
     exportWorkout(db, workoutId);
@@ -84,20 +84,20 @@ export default function WorkoutList({
       </View>
 
       <TouchableOpacity
-          style={[
-            styles.workoutCard,
-            {
-              backgroundColor: theme.card,
-              borderColor: theme.border,
+        style={[
+          styles.workoutCard,
+          {
+            backgroundColor: theme.card,
+            borderColor: theme.border,
 
-            },
-          ]}
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate('Difficulty')}
-        >
-          <Text style={[styles.workoutText, { color: theme.text }]}>{t('navigateToDifficulty')}</Text>
-          <Ionicons name="chevron-forward" size={20} color={theme.text} />
-        </TouchableOpacity>
+          },
+        ]}
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate('Difficulty')}
+      >
+        <Text style={[styles.workoutText, { color: theme.text }]}>{t('navigateToDifficulty')}</Text>
+        <Ionicons name="chevron-forward" size={20} color={theme.text} />
+      </TouchableOpacity>
 
       {/* Workout List */}
       {sortedWorkouts.map((workout) => (
@@ -122,12 +122,12 @@ export default function WorkoutList({
           </View>
           <Ionicons name="chevron-forward" size={20} color={theme.text} />
         </TouchableOpacity>
-        
+
       ))}
-         {/* Tip Text at the Bottom */}
-    <Text style={[styles.tipText, { color: theme.text }]}>
-    {t('WorkoutListTip')}
-    </Text>
+      {/* Tip Text at the Bottom */}
+      <Text style={[styles.tipText, { color: theme.text }]}>
+        {t('WorkoutListTip')}
+      </Text>
     </ScrollView>
   );
 }

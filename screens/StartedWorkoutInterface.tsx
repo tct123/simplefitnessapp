@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  TouchableOpacity, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
   TouchableWithoutFeedback,
-  ScrollView, 
+  ScrollView,
   ActivityIndicator,
   TextInput,
   Alert,
@@ -29,12 +29,12 @@ import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useSettings } from '../context/SettingsContext';
 import { loadRestTimerPreferences, saveRestTimerPreferences } from '../utils/startedWorkoutPreferenceUtils';
 import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
-import { 
-  useTimerPersistence, 
-  createTimerState, 
-  updateTimerState, 
+import {
+  useTimerPersistence,
+  createTimerState,
+  updateTimerState,
   timerCalculations,
-  TimerState 
+  TimerState
 } from '../utils/timerPersistenceUtils';
 import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 
@@ -76,9 +76,9 @@ export default function StartedWorkoutInterface() {
   const { t } = useTranslation();
   const db = useSQLiteContext();
   const { notificationPermissionGranted, weightFormat } = useSettings();
-  
+
   const { workout_log_id } = route.params;
-  
+
   // States for workout data
   const [loading, setLoading] = useState(true);
   const [workout, setWorkout] = useState<{
@@ -87,7 +87,7 @@ export default function StartedWorkoutInterface() {
     day_name: string;
   } | null>(null);
   const [exercises, setExercises] = useState<Exercise[]>([]);
-  
+
   // Workout flow states
   const [restTime, setRestTime] = useState('30');
   const [exerciseRestTime, setExerciseRestTime] = useState('60');
@@ -96,14 +96,14 @@ export default function StartedWorkoutInterface() {
   const [autoFillReps, setAutoFillReps] = useState(true);
   const [useLogsForRepInput, setUseLogsForRepInput] = useState(false);
   const [enableSetSwitchSound, setEnableSetSwitchSound] = useState(false);
-  
+
   // User preference toggles
   const [enableVibration, setEnableVibration] = useState(true);
   const [enableNotifications, setEnableNotifications] = useState(false);
-  
+
   // Sets data for tracking workout
   const [allSets, setAllSets] = useState<ExerciseSet[]>([]);
-  
+
   // State for notes modal
   const [isNotesModalVisible, setIsNotesModalVisible] = useState(false);
   const [notesModalContent, setNotesModalContent] = useState('');
@@ -112,13 +112,13 @@ export default function StartedWorkoutInterface() {
   // Timer state using the new utility
   const [timerState, setTimerState] = useState<TimerState>(createTimerState());
   const [isCompletingSet, setIsCompletingSet] = useState(false);
-  
+
   // Timer refs for intervals
   const workoutTimerRef = useRef<NodeJS.Timeout | null>(null);
   const restTimerRef = useRef<NodeJS.Timeout | null>(null);
   const weightMapRef = useRef(new Map<string, string>());
   const repsMapRef = useRef(new Map<string, string>());
-  
+
   const updateExerciseLoggedStatus = (exerciseId: number, currentSets: ExerciseSet[]) => {
     const exerciseSets = currentSets.filter(s => s.exercise_id === exerciseId);
     const allSetsLogged = exerciseSets.every(s => s.set_logged);
@@ -131,18 +131,18 @@ export default function StartedWorkoutInterface() {
       )
     );
   };
-  
+
   // Handle timer restoration from background
   const handleTimerRestore = (savedState: TimerState, elapsedSeconds: number) => {
     console.log('=== RESTORING TIMER STATE ===');
     console.log('Saved state:', savedState);
     console.log('Elapsed seconds:', elapsedSeconds);
-    
+
     // Restore workout timer
     if (savedState.workoutStartTime) {
       const newDuration = savedState.workoutDuration + elapsedSeconds;
       const newStartTime = Date.now() - (newDuration * 1000);
-      
+
       setTimerState(prev => updateTimerState(prev, {
         workoutDuration: newDuration,
         workoutStartTime: newStartTime,
@@ -150,16 +150,16 @@ export default function StartedWorkoutInterface() {
         workoutStage: savedState.workoutStage,
         workoutStarted: savedState.workoutStarted
       }));
-      
+
       // Restart workout timer
       stopWorkoutTimer();
       startWorkoutTimer();
     }
-    
+
     // Restore rest timer if needed
     if (savedState.isResting && savedState.restRemaining !== null && savedState.restRemaining > 0) {
       const newRestTime = Math.max(0, savedState.restRemaining - elapsedSeconds);
-      
+
       if (newRestTime <= 0) {
         // Rest completed in background
         console.log('Rest completed during background');
@@ -172,13 +172,13 @@ export default function StartedWorkoutInterface() {
           isExerciseRest: savedState.isExerciseRest,
           restStartTime: Date.now()
         }));
-        
+
         stopRestTimer();
         startRestTimer(newRestTime);
       }
     }
   };
-  
+
   // Setup timer persistence
   useTimerPersistence(timerState, {
     onRestore: handleTimerRestore,
@@ -190,7 +190,7 @@ export default function StartedWorkoutInterface() {
     enabled: timerState.workoutStarted,
     debugMode: __DEV__
   });
-  
+
   // Handle AppState changes for notifications
   useEffect(() => {
     const handleAppStateChange = async (nextAppState: string) => {
@@ -202,36 +202,36 @@ export default function StartedWorkoutInterface() {
         stopRestTimer();
         // clearRestTimerState(); // Clear timer state when going background // REMOVED
 
-        if (timerState.workoutStarted && 
-            timerState.workoutStage !== 'completed' && 
-            enableNotifications && 
-            notificationPermissionGranted) {
-          
+        if (timerState.workoutStarted &&
+          timerState.workoutStage !== 'completed' &&
+          enableNotifications &&
+          notificationPermissionGranted) {
+
           console.log('App going to background - scheduling notification');
-          
+
           try {
             // Clear any existing notifications first
             await Notifications.dismissAllNotificationsAsync();
-            
+
             // Schedule workout progress notification
             await Notifications.scheduleNotificationAsync({
               content: {
                 title: t("Workout in Progress"),
                 body: t("Workout in Progress Message"),
                 priority: 'min',
-                data: { 
+                data: {
                   startTime: timerState.workoutStartTime,
                   type: 'workout_timer'
                 },
               },
               trigger: null,
             });
-            
+
           } catch (error) {
             console.error('Error scheduling notifications:', error);
           }
         }
-      } 
+      }
       // Coming to foreground - clear notifications
       else if (nextAppState === 'active') {
         // clearRestTimerState(); // Clear timer state when coming to foreground // REMOVED
@@ -245,22 +245,22 @@ export default function StartedWorkoutInterface() {
         }
       }
     };
-    
+
     const subscription = AppState.addEventListener('change', handleAppStateChange);
-    
+
     return () => {
       // clearRestTimerState(); // Clear on unmount // This was already correctly removed/commented
       subscription.remove();
     };
   }, [
-    timerState.workoutStarted, 
-    timerState.workoutStage, 
-    enableNotifications, 
+    timerState.workoutStarted,
+    timerState.workoutStage,
+    enableNotifications,
     notificationPermissionGranted,
     t,
     timerState.workoutStartTime
   ]);
-  
+
   // Update enableNotifications only if permission is granted
   useEffect(() => {
     if (notificationPermissionGranted && !enableNotifications) {
@@ -268,52 +268,52 @@ export default function StartedWorkoutInterface() {
       // setEnableNotifications(true);
     }
   }, [notificationPermissionGranted]);
-  
+
   useEffect(() => {
     const loadInitialData = async () => {
-        try {
-            const preferences = await loadRestTimerPreferences();
-            setRestTime(preferences.restTimeBetweenSets);
-            setExerciseRestTime(preferences.restTimeBetweenExercises);
-            setEnableVibration(preferences.enableVibration);
-            setAutoFillWeight(preferences.autoFillWeight);
-            setAutoFillReps(preferences.autoFillReps);
-            setUseLogsForRepInput(preferences.useLogsForRepInput);
-            setEnableSetSwitchSound(preferences.enableSetSwitchSound);
-            if (notificationPermissionGranted) {
-                setEnableNotifications(preferences.enableNotifications);
-            } else {
-                setEnableNotifications(false);
-            }
-
-            await fetchWorkoutDetails(
-              preferences.autoFillWeight, 
-              preferences.autoFillReps, 
-              preferences.useLogsForRepInput
-            );
-        } catch (error) {
-            console.error('Error loading initial data:', error);
-            setLoading(false);
+      try {
+        const preferences = await loadRestTimerPreferences();
+        setRestTime(preferences.restTimeBetweenSets);
+        setExerciseRestTime(preferences.restTimeBetweenExercises);
+        setEnableVibration(preferences.enableVibration);
+        setAutoFillWeight(preferences.autoFillWeight);
+        setAutoFillReps(preferences.autoFillReps);
+        setUseLogsForRepInput(preferences.useLogsForRepInput);
+        setEnableSetSwitchSound(preferences.enableSetSwitchSound);
+        if (notificationPermissionGranted) {
+          setEnableNotifications(preferences.enableNotifications);
+        } else {
+          setEnableNotifications(false);
         }
+
+        await fetchWorkoutDetails(
+          preferences.autoFillWeight,
+          preferences.autoFillReps,
+          preferences.useLogsForRepInput
+        );
+      } catch (error) {
+        console.error('Error loading initial data:', error);
+        setLoading(false);
+      }
     };
 
     loadInitialData();
 
     return () => {
-        stopWorkoutTimer();
-        stopRestTimer();
-        deactivateKeepAwake();
+      stopWorkoutTimer();
+      stopRestTimer();
+      deactivateKeepAwake();
     };
   }, [notificationPermissionGranted]);
 
   // Setup notification handler and keep awake
   useEffect(() => {
     const configureNotifications = async () => {
-      await Notifications.setNotificationHandler({
+      Notifications.setNotificationHandler({
         handleNotification: async (notification) => {
           // Handle different notification types
           const notificationType = notification.request.content.data?.type;
-          
+
           return {
             shouldShowAlert: true,
             shouldPlaySound: notificationType === 'rest_complete',
@@ -322,12 +322,12 @@ export default function StartedWorkoutInterface() {
         },
       });
     };
-    
+
     if (timerState.workoutStarted) {
       activateKeepAwakeAsync();
       configureNotifications();
     }
-    
+
     return () => {
       deactivateKeepAwake();
       // Clear notifications when component unmounts
@@ -350,7 +350,7 @@ export default function StartedWorkoutInterface() {
         t('exitWorkout'),
         t('exitWorkoutMessage'),
         [
-          { text: t('Cancel'), style: 'cancel', onPress: () => {} },
+          { text: t('Cancel'), style: 'cancel', onPress: () => { } },
           {
             text: t('exit'),
             style: 'destructive',
@@ -362,7 +362,7 @@ export default function StartedWorkoutInterface() {
 
     return unsubscribe;
   }, [navigation, timerState.workoutStarted, timerState.workoutStage, t]);
-  
+
   const showNotes = (notes: string, exerciseName: string) => {
     setNotesModalContent(notes);
     setNotesModalTitle(exerciseName);
@@ -386,15 +386,15 @@ export default function StartedWorkoutInterface() {
       Alert.alert(t('errorOpeningURL'));
     }
   };
-  
+
   const fetchWorkoutDetails = async (
-    shouldAutoFill: boolean, 
-    shouldAutoFillReps: boolean, 
+    shouldAutoFill: boolean,
+    shouldAutoFillReps: boolean,
     shouldUseLogsForReps: boolean
   ) => {
     try {
       setLoading(true);
-      
+
       const workoutResult = await db.getAllAsync<{
         workout_name: string;
         workout_date: number;
@@ -405,28 +405,28 @@ export default function StartedWorkoutInterface() {
          WHERE workout_log_id = ?;`,
         [workout_log_id]
       );
-      
+
       if (workoutResult.length > 0) {
         setWorkout(workoutResult[0]);
-        
+
         const exercisesResult = await db.getAllAsync<Exercise>(
           `SELECT exercise_name, sets, reps, logged_exercise_id, web_link, muscle_group, exercise_notes
            FROM Logged_Exercises 
            WHERE workout_log_id = ?;`,
           [workout_log_id]
         );
-        
+
         setExercises(exercisesResult.map(e => ({ ...e, exercise_fully_logged: false })));
-        
+
         weightMapRef.current.clear();
         repsMapRef.current.clear();
 
         if (exercisesResult.length > 0) {
-            const exerciseNames = exercisesResult.map(e => e.exercise_name);
-            const placeholders = exerciseNames.map(() => '?').join(',');
-        
-            const lastLogResult = await db.getAllAsync<{ exercise_name: string; set_number: number; weight_logged: number; reps_logged: number }>(
-                `SELECT wl.exercise_name, wl.set_number, wl.weight_logged, wl.reps_logged
+          const exerciseNames = exercisesResult.map(e => e.exercise_name);
+          const placeholders = exerciseNames.map(() => '?').join(',');
+
+          const lastLogResult = await db.getAllAsync<{ exercise_name: string; set_number: number; weight_logged: number; reps_logged: number }>(
+            `SELECT wl.exercise_name, wl.set_number, wl.weight_logged, wl.reps_logged
                  FROM Weight_Log wl
                  INNER JOIN (
                    SELECT exercise_name, set_number, MAX(workout_log_id) as max_log_id
@@ -437,28 +437,28 @@ export default function StartedWorkoutInterface() {
                  ON wl.exercise_name = latest_logs.exercise_name 
                  AND wl.set_number = latest_logs.set_number 
                  AND wl.workout_log_id = latest_logs.max_log_id;`,
-                exerciseNames
-              );
-        
-              lastLogResult.forEach(row => {
-                weightMapRef.current.set(`${row.exercise_name}-${row.set_number}`, row.weight_logged.toString());
-                repsMapRef.current.set(`${row.exercise_name}-${row.set_number}`, row.reps_logged.toString());
-              });
+            exerciseNames
+          );
+
+          lastLogResult.forEach(row => {
+            weightMapRef.current.set(`${row.exercise_name}-${row.set_number}`, row.weight_logged.toString());
+            repsMapRef.current.set(`${row.exercise_name}-${row.set_number}`, row.reps_logged.toString());
+          });
         }
-        
+
         // Prepare all sets data structure
         const setsData: ExerciseSet[] = [];
         exercisesResult.forEach(exercise => {
           for (let i = 1; i <= exercise.sets; i++) {
             const weight = shouldAutoFill ? (weightMapRef.current.get(`${exercise.exercise_name}-${i}`) || '') : '';
-            
+
             let reps_done = '';
             if (shouldAutoFillReps) {
-                if (shouldUseLogsForReps) {
-                    reps_done = repsMapRef.current.get(`${exercise.exercise_name}-${i}`) || '';
-                } else {
-                    reps_done = exercise.reps.toString();
-                }
+              if (shouldUseLogsForReps) {
+                reps_done = repsMapRef.current.get(`${exercise.exercise_name}-${i}`) || '';
+              } else {
+                reps_done = exercise.reps.toString();
+              }
             }
 
             setsData.push({
@@ -476,36 +476,36 @@ export default function StartedWorkoutInterface() {
             });
           }
         });
-        
+
         setAllSets(setsData);
       }
-      
+
       setLoading(false);
     } catch (error) {
       console.error('Error fetching workout details:', error);
       setLoading(false);
     }
   };
-  
+
   // Timer functions
   const startWorkoutTimer = () => {
     const startTime = Date.now() - (timerState.workoutDuration * 1000);
     setTimerState(prev => updateTimerState(prev, { workoutStartTime: startTime }));
-    
+
     workoutTimerRef.current = setInterval(() => {
       setTimerState(prev => updateTimerState(prev, {
         workoutDuration: prev.workoutDuration + 1
       }));
     }, 1000);
   };
-  
+
   const stopWorkoutTimer = () => {
     if (workoutTimerRef.current) {
       clearInterval(workoutTimerRef.current);
       workoutTimerRef.current = null;
     }
   };
-  
+
   const startRestTimer = (seconds: number) => {
     // We're explicitly setting a number here, not null
     setTimerState(prev => updateTimerState(prev, {
@@ -513,7 +513,7 @@ export default function StartedWorkoutInterface() {
       restStartTime: Date.now(),
       isResting: true
     }));
-    
+
     restTimerRef.current = setInterval(() => {
       setTimerState(prev => {
         if (prev.restRemaining === null) {
@@ -521,7 +521,7 @@ export default function StartedWorkoutInterface() {
           return prev;
         }
         const newRestTime = prev.restRemaining - 1;
-        
+
         if (newRestTime <= 0) {
           stopRestTimer();
           handleRestComplete(prev.isExerciseRest);
@@ -531,26 +531,26 @@ export default function StartedWorkoutInterface() {
             isExerciseRest: false
           });
         }
-        
+
         return updateTimerState(prev, { restRemaining: newRestTime });
       });
     }, 1000);
   };
-  
+
   const stopRestTimer = () => {
     if (restTimerRef.current) {
       clearInterval(restTimerRef.current);
       restTimerRef.current = null;
     }
   };
-  
+
   const handleRestComplete = (wasExerciseRest: boolean) => {
-  
+
     clearRestTimerState(); // Clear rest timer state before new set
     setTimerState(prev => updateTimerState(prev, {
       workoutStage: 'exercise'
     }));
-    
+
     if (enableVibration) {
       Vibration.vibrate([500, 300, 500]);
     }
@@ -558,10 +558,10 @@ export default function StartedWorkoutInterface() {
       playSound();
     }
   };
-  
+
   const handleAutoFillToggle = (newValue: boolean) => {
     setAutoFillWeight(newValue);
-    setAllSets(currentSets => 
+    setAllSets(currentSets =>
       currentSets.map(set => {
         if (set.set_logged) {
           return set;
@@ -631,12 +631,12 @@ export default function StartedWorkoutInterface() {
   const startWorkout = async () => {
     const setRestSeconds = parseInt(restTime);
     const exerciseRestSeconds = parseInt(exerciseRestTime);
-    
+
     if (isNaN(setRestSeconds) || setRestSeconds < 0) {
       Alert.alert(t('invalidRestTime'), t('pleaseEnterValidSeconds'));
       return;
     }
-    
+
     if (isNaN(exerciseRestSeconds) || exerciseRestSeconds < 0) {
       Alert.alert(t('invalidExerciseRestTime'), t('pleaseEnterValidSeconds'));
       return;
@@ -656,15 +656,15 @@ export default function StartedWorkoutInterface() {
     } catch (error) {
       console.error('Error saving rest timer preferences:', error);
     }
-    
+
     setTimerState(prev => updateTimerState(prev, {
       workoutStarted: true,
       workoutStage: 'exercise'
     }));
-    
+
     startWorkoutTimer();
   };
-  
+
   const handleNotificationToggle = async () => {
     if (!enableNotifications) {
       if (!notificationPermissionGranted) {
@@ -673,10 +673,10 @@ export default function StartedWorkoutInterface() {
           t('Notification permission is required. Please enable notifications in the Settings page.'),
           [
             { text: t('Cancel'), style: 'cancel' },
-            { 
-              text: t('Go to Settings'), 
+            {
+              text: t('Go to Settings'),
               onPress: () => navigation.navigate('Settings' as never),
-              style: 'default' 
+              style: 'default'
             },
           ]
         );
@@ -693,7 +693,7 @@ export default function StartedWorkoutInterface() {
       }
     }
   };
-  
+
   const isDifferentExercise = (currentIndex: number, nextIndex: number): boolean => {
     if (nextIndex >= allSets.length) return false;
     return allSets[currentIndex].exercise_name !== allSets[nextIndex].exercise_name;
@@ -714,7 +714,7 @@ export default function StartedWorkoutInterface() {
     { label: t('Calves'), value: 'calves' },
     { label: t('Quads'), value: 'quads' },
   ];
-  
+
   // Rest of the render functions remain the same...
   const renderOverview = () => {
     return (
@@ -735,7 +735,7 @@ export default function StartedWorkoutInterface() {
             </View>
           </View>
         </View>
-        
+
         <Text style={[styles.sectionTitle, { color: theme.text }]}>{t('exercises')}</Text>
         <FlatList
           data={exercises}
@@ -745,7 +745,7 @@ export default function StartedWorkoutInterface() {
             return (
               <View style={[styles.exerciseItem, { backgroundColor: theme.card, borderColor: theme.border }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', flexShrink: 1,}}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', flexShrink: 1, }}>
                     <Text style={[styles.exerciseName, { color: theme.text, marginRight: 8 }]}>{item.exercise_name}</Text>
                     {muscleGroupInfo && muscleGroupInfo.value && (
                       <View style={[styles.muscleGroupBadgeOverview, { backgroundColor: theme.card, borderColor: theme.border }]}>
@@ -777,11 +777,11 @@ export default function StartedWorkoutInterface() {
           scrollEnabled={false}
           style={styles.exercisesList}
         />
-        
+
         <View style={styles.setupSection}>
           <Text style={[styles.setupLabel, { color: theme.text }]}>{t('restTimeBetweenSets')}:</Text>
           <TextInput
-            style={[styles.restTimeInput, { 
+            style={[styles.restTimeInput, {
               backgroundColor: theme.card,
               color: theme.text,
               borderColor: theme.border
@@ -792,10 +792,10 @@ export default function StartedWorkoutInterface() {
             maxLength={4}
             placeholderTextColor={theme.type === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'}
           />
-          
+
           <Text style={[styles.setupLabel, { color: theme.text }]}>{t('restTimeBetweenExercises')}:</Text>
           <TextInput
-            style={[styles.restTimeInput, { 
+            style={[styles.restTimeInput, {
               backgroundColor: theme.card,
               color: theme.text,
               borderColor: theme.border
@@ -806,10 +806,10 @@ export default function StartedWorkoutInterface() {
             maxLength={4}
             placeholderTextColor={theme.type === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'}
           />
-          
+
           <Text style={[styles.setupLabel, { color: theme.text, marginTop: 15 }]}>{t('workoutSettings')}:</Text>
-          
-          <View style={[styles.toggleRow, { 
+
+          <View style={[styles.toggleRow, {
             backgroundColor: theme.type === 'dark' ? '#121212' : '#f0f0f0',
             borderColor: theme.type === 'dark' ? '#000000' : '#e0e0e0'
           }]}>
@@ -834,7 +834,7 @@ export default function StartedWorkoutInterface() {
               thumbColor={autoFillReps ? (theme.type === 'dark' ? '#fff' : '#fff') : (theme.type === 'dark' ? '#888' : '#f4f3f4')}
             />
           </View>
-          
+
           {autoFillReps && (
             <View style={[styles.toggleRow, {
               backgroundColor: theme.type === 'dark' ? '#121212' : '#f0f0f0',
@@ -850,7 +850,7 @@ export default function StartedWorkoutInterface() {
             </View>
           )}
 
-          <View style={[styles.toggleRow, { 
+          <View style={[styles.toggleRow, {
             backgroundColor: theme.type === 'dark' ? '#121212' : '#f0f0f0',
             borderColor: theme.type === 'dark' ? '#000000' : '#e0e0e0'
           }]}>
@@ -862,8 +862,8 @@ export default function StartedWorkoutInterface() {
               thumbColor={enableVibration ? (theme.type === 'dark' ? '#fff' : '#fff') : (theme.type === 'dark' ? '#888' : '#f4f3f4')}
             />
           </View>
-          
-          <View style={[styles.toggleRow, { 
+
+          <View style={[styles.toggleRow, {
             backgroundColor: theme.type === 'dark' ? '#121212' : '#f0f0f0',
             borderColor: theme.type === 'dark' ? '#000000' : '#e0e0e0'
           }]}>
@@ -875,8 +875,8 @@ export default function StartedWorkoutInterface() {
               thumbColor={enableSetSwitchSound ? (theme.type === 'dark' ? '#fff' : '#fff') : (theme.type === 'dark' ? '#888' : '#f4f3f4')}
             />
           </View>
-          
-          <View style={[styles.toggleRow, { 
+
+          <View style={[styles.toggleRow, {
             backgroundColor: theme.type === 'dark' ? '#121212' : '#f0f0f0',
             borderColor: theme.type === 'dark' ? '#000000' : '#e0e0e0'
           }]}>
@@ -888,7 +888,7 @@ export default function StartedWorkoutInterface() {
               thumbColor={enableNotifications ? (theme.type === 'dark' ? '#fff' : '#fff') : (theme.type === 'dark' ? '#888' : '#f4f3f4')}
             />
           </View>
-          
+
           <TouchableOpacity
             style={[styles.startButton, { backgroundColor: theme.buttonBackground }]}
             onPress={startWorkout}
@@ -900,20 +900,20 @@ export default function StartedWorkoutInterface() {
       </View>
     );
   };
-  
+
   // ... (rest of the render functions remain the same)
-  
+
   const renderExerciseScreen = () => {
     const currentSet = allSets[timerState.currentSetIndex];
     if (!currentSet) return null;
-    
+
     const muscleGroupInfo = muscleGroupData.find(mg => mg.value === currentSet.muscle_group);
-    
+
     const isLastUnloggedSet = allSets.filter(s => !s.set_logged).length === 1;
 
     const loggedSetsCount = allSets.filter(s => s.set_logged).length;
     const progress = allSets.length > 0 ? (loggedSetsCount / allSets.length) * 100 : 0;
-    
+
     const currentExerciseId = currentSet.exercise_id;
     const currentExerciseIndex = exercises.findIndex(ex => ex.logged_exercise_id === currentExerciseId);
     const isLastExercise = currentExerciseIndex === exercises.length - 1;
@@ -928,7 +928,7 @@ export default function StartedWorkoutInterface() {
             {timerCalculations.formatTime(timerState.workoutDuration)}
           </Text>
         </View>
-        
+
         <View style={[styles.currentExerciseCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
           <Text style={[styles.currentExerciseName, { color: theme.text }]}>
             {currentSet.exercise_name}
@@ -953,43 +953,43 @@ export default function StartedWorkoutInterface() {
               </TouchableOpacity>
             )}
           </View>
-          
+
           <Text style={[styles.setInfo, { color: theme.text }]}>
-           {currentSet.set_number}/{currentSet.total_sets}
+            {currentSet.set_number}/{currentSet.total_sets}
           </Text>
           <Text style={[styles.repInfo, { color: theme.text }]}>
             {t('goal')}: {currentSet.reps_goal} {t('Reps')}
           </Text>
-          
+
           <View style={styles.inputContainer}>
             <View style={styles.inputGroup}>
               <Text style={[styles.inputLabel, { color: theme.text }]}>{t('repsDone')}</Text>
               <TextInput
-                  style={[styles.input, { 
+                style={[styles.input, {
                   backgroundColor: theme.card,
-              color: theme.text,
-              borderColor: theme.border
-            }]}
-            value={currentSet.reps_done}
-            onChangeText={(text) => {
-              const updatedSets = [...allSets];
-              updatedSets[timerState.currentSetIndex] = {
-                ...updatedSets[timerState.currentSetIndex],
-                reps_done: text
-              };
-              setAllSets(updatedSets);
-            }}
-            keyboardType="number-pad"
-            maxLength={4}
-            placeholder={"> 0"}
-            placeholderTextColor={theme.type === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'}
-          />
+                  color: theme.text,
+                  borderColor: theme.border
+                }]}
+                value={currentSet.reps_done}
+                onChangeText={(text) => {
+                  const updatedSets = [...allSets];
+                  updatedSets[timerState.currentSetIndex] = {
+                    ...updatedSets[timerState.currentSetIndex],
+                    reps_done: text
+                  };
+                  setAllSets(updatedSets);
+                }}
+                keyboardType="number-pad"
+                maxLength={4}
+                placeholder={"> 0"}
+                placeholderTextColor={theme.type === 'dark' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'}
+              />
             </View>
-            
+
             <View style={styles.inputGroup}>
               <Text style={[styles.inputLabel, { color: theme.text }]}> {t('Weight')} ({weightFormat})</Text>
               <TextInput
-                style={[styles.input, { 
+                style={[styles.input, {
                   backgroundColor: theme.card,
                   color: theme.text,
                   borderColor: theme.border
@@ -1013,160 +1013,160 @@ export default function StartedWorkoutInterface() {
             </View>
           </View>
         </View>
-        
+
         <View style={styles.controlsContainer}>
-            {!isLastStructuralSet &&
+          {!isLastStructuralSet &&
             <TouchableOpacity
-                style={[styles.completeButton, { 
-                backgroundColor: 
-                    !allSets[timerState.currentSetIndex] || allSets[timerState.currentSetIndex].reps_done === '' || parseInt(allSets[timerState.currentSetIndex].reps_done) <= 0 || allSets[timerState.currentSetIndex].weight === '' || parseFloat(allSets[timerState.currentSetIndex].weight) <= 0
-                    ? theme.inactivetint 
+              style={[styles.completeButton, {
+                backgroundColor:
+                  !allSets[timerState.currentSetIndex] || allSets[timerState.currentSetIndex].reps_done === '' || parseInt(allSets[timerState.currentSetIndex].reps_done) <= 0 || allSets[timerState.currentSetIndex].weight === '' || parseFloat(allSets[timerState.currentSetIndex].weight) <= 0
+                    ? theme.inactivetint
                     : theme.buttonBackground
-                }]}
-                onPress={() => {
+              }]}
+              onPress={() => {
                 const pressCurrentSet = allSets[timerState.currentSetIndex];
                 if (!pressCurrentSet || pressCurrentSet.reps_done === '' || parseInt(pressCurrentSet.reps_done) <= 0 || pressCurrentSet.weight === '' || parseFloat(pressCurrentSet.weight) <= 0) {
-                    Alert.alert(t('missingInformation'), t('enterRepsAndWeight'));
-                    return;
+                  Alert.alert(t('missingInformation'), t('enterRepsAndWeight'));
+                  return;
                 }
-                
+
                 setIsCompletingSet(true);
 
                 const updatedSets = [...allSets];
                 const currentSetIndex = timerState.currentSetIndex;
                 const currentSet = { ...updatedSets[currentSetIndex], set_logged: true };
                 updatedSets[currentSetIndex] = currentSet;
-                
+
                 setAllSets(updatedSets);
                 updateExerciseLoggedStatus(currentSet.exercise_id, updatedSets);
-                
+
                 const findNextUnloggedSet = (startIndex: number) => {
-                    for (let i = startIndex; i < updatedSets.length; i++) {
+                  for (let i = startIndex; i < updatedSets.length; i++) {
                     if (!updatedSets[i].set_logged) {
-                        return i;
+                      return i;
                     }
-                    }
-                    return -1;
+                  }
+                  return -1;
                 };
 
                 let nextSetIndex = findNextUnloggedSet(currentSetIndex + 1);
 
                 if (nextSetIndex !== -1) {
-                    const differentExercise = isDifferentExercise(currentSetIndex, nextSetIndex);
-                    
-                    setTimerState(prev => updateTimerState(prev, {
+                  const differentExercise = isDifferentExercise(currentSetIndex, nextSetIndex);
+
+                  setTimerState(prev => updateTimerState(prev, {
                     workoutStage: 'rest',
                     isExerciseRest: differentExercise,
-                    currentSetIndex: nextSetIndex 
-                    }));
-                    
-                    const restSeconds = differentExercise 
-                    ? parseInt(exerciseRestTime) 
+                    currentSetIndex: nextSetIndex
+                  }));
+
+                  const restSeconds = differentExercise
+                    ? parseInt(exerciseRestTime)
                     : parseInt(restTime);
-                    
-                    setIsCompletingSet(false);
-                    startRestTimer(restSeconds);
-                    
+
+                  setIsCompletingSet(false);
+                  startRestTimer(restSeconds);
+
                 } else {
-                    // No more unlogged sets after current one
-                    const anyUnlogged = updatedSets.some(s => !s.set_logged);
-                    if (anyUnlogged) {
+                  // No more unlogged sets after current one
+                  const anyUnlogged = updatedSets.some(s => !s.set_logged);
+                  if (anyUnlogged) {
                     Alert.alert(
-                        t('unsavedSetsTitle'),
-                        t('unsavedSetsMessage'),
-                        [
+                      t('unsavedSetsTitle'),
+                      t('unsavedSetsMessage'),
+                      [
                         {
-                            text: t('Yes'),
-                            style: 'destructive',
-                            onPress: () => {
+                          text: t('Yes'),
+                          style: 'destructive',
+                          onPress: () => {
                             setTimerState(prev => updateTimerState(prev, { workoutStage: 'completed' }));
                             stopWorkoutTimer();
-                            },
+                          },
                         },
                         {
-                            text: t('No'),
-                            style: 'cancel',
-                            onPress: () => {
+                          text: t('No'),
+                          style: 'cancel',
+                          onPress: () => {
                             const firstUnloggedIndex = findNextUnloggedSet(0);
                             if (firstUnloggedIndex !== -1) {
-                                setTimerState(prev => updateTimerState(prev, {
+                              setTimerState(prev => updateTimerState(prev, {
                                 workoutStage: 'exercise',
                                 currentSetIndex: firstUnloggedIndex
-                                }));
+                              }));
                             }
                             setIsCompletingSet(false);
-                            },
+                          },
                         },
-                        ],
-                        { onDismiss: () => setIsCompletingSet(false) }
+                      ],
+                      { onDismiss: () => setIsCompletingSet(false) }
                     );
-                    } else {
+                  } else {
                     // All sets are logged
                     setTimerState(prev => updateTimerState(prev, { workoutStage: 'completed' }));
                     stopWorkoutTimer();
-                    }
+                  }
                 }
-                }}
-                disabled={
-                    isCompletingSet ||
-                    !allSets[timerState.currentSetIndex] || allSets[timerState.currentSetIndex].reps_done === '' || parseInt(allSets[timerState.currentSetIndex].reps_done) <= 0 || allSets[timerState.currentSetIndex].weight === '' || parseFloat(allSets[timerState.currentSetIndex].weight) <= 0
-                }
+              }}
+              disabled={
+                isCompletingSet ||
+                !allSets[timerState.currentSetIndex] || allSets[timerState.currentSetIndex].reps_done === '' || parseInt(allSets[timerState.currentSetIndex].reps_done) <= 0 || allSets[timerState.currentSetIndex].weight === '' || parseFloat(allSets[timerState.currentSetIndex].weight) <= 0
+              }
             >
-                <Text style={[styles.buttonText, { color: theme.buttonText }]}>
+              <Text style={[styles.buttonText, { color: theme.buttonText }]}>
                 {isCompletingSet ? `${t('completing')}...` : (isLastUnloggedSet ? t('finishWorkout') : t('completeSet'))}
-                </Text>
+              </Text>
             </TouchableOpacity>
-            }
-            <View style={styles.secondaryControlsContainer}>
-                {!isLastExercise &&
-                  <TouchableOpacity
-                  style={[styles.secondaryButton, { backgroundColor: theme.card, borderColor: theme.border }]}
-                  onPress={handleSkipToNextExercise}
-                  >
-                    <AutoSizeText
-                      fontSize={16}
-                      numberOfLines={3}
-                      mode={ResizeTextMode.max_lines}
-                      style={[styles.secondaryButtonText, { color: theme.text }]}
-                    >
-                      {t('skipToNextExercise')}
-                    </AutoSizeText>
-                  </TouchableOpacity>
-                }
-                <TouchableOpacity
-                  style={[
-                    styles.secondaryButton, 
-                    { backgroundColor: theme.card, borderColor: theme.border },
-                    (isLastExercise && !isLastStructuralSet) && { width: '100%' },
-                    (isLastExercise && isLastStructuralSet) && { width: '100%' }
-                  ]}
-                  onPress={handleFinishWorkout}
+          }
+          <View style={styles.secondaryControlsContainer}>
+            {!isLastExercise &&
+              <TouchableOpacity
+                style={[styles.secondaryButton, { backgroundColor: theme.card, borderColor: theme.border }]}
+                onPress={handleSkipToNextExercise}
+              >
+                <AutoSizeText
+                  fontSize={16}
+                  numberOfLines={3}
+                  mode={ResizeTextMode.max_lines}
+                  style={[styles.secondaryButtonText, { color: theme.text }]}
                 >
-                  <AutoSizeText
-                    fontSize={16}
-                    numberOfLines={3}
-                    mode={ResizeTextMode.max_lines}
-                    style={[styles.secondaryButtonText, { color: theme.text }]}
-                  >
-                    {t('finishWorkout')}
-                  </AutoSizeText>
-                </TouchableOpacity>
-            </View>
+                  {t('skipToNextExercise')}
+                </AutoSizeText>
+              </TouchableOpacity>
+            }
+            <TouchableOpacity
+              style={[
+                styles.secondaryButton,
+                { backgroundColor: theme.card, borderColor: theme.border },
+                (isLastExercise && !isLastStructuralSet) && { width: '100%' },
+                (isLastExercise && isLastStructuralSet) && { width: '100%' }
+              ]}
+              onPress={handleFinishWorkout}
+            >
+              <AutoSizeText
+                fontSize={16}
+                numberOfLines={3}
+                mode={ResizeTextMode.max_lines}
+                style={[styles.secondaryButtonText, { color: theme.text }]}
+              >
+                {t('finishWorkout')}
+              </AutoSizeText>
+            </TouchableOpacity>
+          </View>
         </View>
-        
+
         <View style={styles.progressContainer}>
           <Text style={[styles.progressText, { color: theme.text }]}>
-          %{Math.round(progress)}
+            %{Math.round(progress)}
           </Text>
           <View style={[styles.progressBar, { backgroundColor: theme.border }]}>
-            <View 
+            <View
               style={[
-                styles.progressFill, 
-                { 
+                styles.progressFill,
+                {
                   backgroundColor: theme.buttonBackground,
                   width: `${progress}%`
                 }
-              ]} 
+              ]}
             />
           </View>
         </View>
@@ -1174,10 +1174,10 @@ export default function StartedWorkoutInterface() {
       </View>
     );
   };
-  
+
   const renderRestScreen = () => {
     const nextSet = allSets[timerState.currentSetIndex];
-    
+
     const muscleGroupInfo = nextSet ? muscleGroupData.find(mg => mg.value === nextSet.muscle_group) : null;
 
     let previousSetReps = null;
@@ -1187,33 +1187,33 @@ export default function StartedWorkoutInterface() {
       previousSetReps = repsMapRef.current.get(setKey) || null;
       previousSetWeight = weightMapRef.current.get(setKey) || null;
     }
-    
+
     return (
       <View style={styles.restScreenContainer}>
         <View style={[styles.restCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
           <Text style={[styles.restTitle, { color: theme.text }]}>{t('restTime')}</Text>
-          
+
           <View style={styles.restTimerContainer}>
             <Text style={[styles.restTimerText, { color: theme.text }]}>
               {timerState.restRemaining}
             </Text>
             <Text style={[styles.restTimerUnit, { color: theme.text }]}>{t('sec')}</Text>
           </View>
-          
+
           <TouchableOpacity
-              style={[styles.addTimeButton, { backgroundColor: theme.type === 'dark' ? 'rgba(255,255,255,0.15)' : theme.border }]}
-            onPress={() => setTimerState(prev => updateTimerState(prev, { 
-              restRemaining: (prev.restRemaining ?? 0) + 15 
+            style={[styles.addTimeButton, { backgroundColor: theme.type === 'dark' ? 'rgba(255,255,255,0.15)' : theme.border }]}
+            onPress={() => setTimerState(prev => updateTimerState(prev, {
+              restRemaining: (prev.restRemaining ?? 0) + 15
             }))}
           >
             <Text style={[styles.addTimeButtonText, { color: theme.type === 'dark' ? 'white' : 'rgba(255, 255, 255, 0.8)' }]}>{t('addTime')}</Text>
           </TouchableOpacity>
-          
+
           <Text style={[styles.restMessage, { color: theme.text }]}>
             {t('takeBreath')}
           </Text>
         </View>
-        
+
         {nextSet && (
           <View style={[styles.upNextCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
             <Text style={[styles.upNextLabel, { color: theme.text }]}>{t('upNext')}</Text>
@@ -1256,7 +1256,7 @@ export default function StartedWorkoutInterface() {
             )}
           </View>
         )}
-        
+
         <TouchableOpacity
           style={[styles.skipRestButton, { backgroundColor: theme.buttonBackground }]}
           onPress={() => {
@@ -1271,16 +1271,16 @@ export default function StartedWorkoutInterface() {
       </View>
     );
   };
-  
+
   const renderCompletedScreen = () => {
     const loggedSets = allSets.filter(set => set.set_logged);
-    
+
     const saveWorkout = async () => {
       try {
         console.log('Starting workout save process...');
-        
+
         await db.runAsync('BEGIN TRANSACTION;');
-        
+
         console.log('Saving completion time to Workout_Log:', timerState.workoutDuration);
         await db.runAsync(
           `UPDATE Workout_Log 
@@ -1288,7 +1288,7 @@ export default function StartedWorkoutInterface() {
            WHERE workout_log_id = ?;`,
           [timerState.workoutDuration, workout_log_id]
         );
-        
+
         console.log('Saving completed sets:', loggedSets.length);
         for (let i = 0; i < loggedSets.length; i++) {
           const set = loggedSets[i];
@@ -1313,10 +1313,10 @@ export default function StartedWorkoutInterface() {
             ]
           );
         }
-        
+
         await db.runAsync('COMMIT;');
         console.log('Workout save completed successfully!');
-        
+
         Alert.alert(
           t('workoutSaved'),
           t('workoutSavedMessage'),
@@ -1331,18 +1331,18 @@ export default function StartedWorkoutInterface() {
         );
       }
     };
-    
+
     return (
       <View style={styles.completedContainer}>
         <Ionicons name="checkmark-circle" size={80} color={theme.buttonBackground} style={styles.completedIcon} />
-        
+
         <Text style={[styles.completedTitle, { color: theme.text }]}>{t('workoutCompleted')}</Text>
-        
+
         <View style={[styles.completedCard, { backgroundColor: theme.card, borderColor: theme.border }]}>
           <Text style={[styles.completedWorkoutName, { color: theme.text }]}>
             {workout?.workout_name}
           </Text>
-          
+
           <View style={styles.completedStats}>
             <View style={styles.completedStatItem}>
               <Text style={[styles.completedStatValue, { color: theme.text }]}>
@@ -1350,7 +1350,7 @@ export default function StartedWorkoutInterface() {
               </Text>
               <Text style={[styles.completedStatLabel, { color: theme.text }]}>{t('totalTime')}</Text>
             </View>
-            
+
             <View style={styles.completedStatItem}>
               <Text style={[styles.completedStatValue, { color: theme.text }]}>
                 {loggedSets.length}
@@ -1359,7 +1359,7 @@ export default function StartedWorkoutInterface() {
             </View>
           </View>
         </View>
-        
+
         <TouchableOpacity
           style={[styles.saveButton, { backgroundColor: theme.buttonBackground }]}
           onPress={saveWorkout}
@@ -1371,7 +1371,7 @@ export default function StartedWorkoutInterface() {
       </View>
     );
   };
-  
+
   const renderExerciseListModal = () => {
     const currentExerciseNameFromSet = allSets[timerState.currentSetIndex]?.exercise_name;
 
@@ -1388,10 +1388,10 @@ export default function StartedWorkoutInterface() {
 
 
 
-    {isExerciseListModalVisible && (
+        {isExerciseListModalVisible && (
           <StatusBar
             backgroundColor={theme.type === 'light' ? "rgba(0, 0, 0, 0.5)" : "black"}
-            barStyle={'light-content'}          />
+            barStyle={'light-content'} />
         )}
 
         <TouchableOpacity
@@ -1399,12 +1399,12 @@ export default function StartedWorkoutInterface() {
           activeOpacity={1}
           onPressOut={() => setIsExerciseListModalVisible(false)}
         >
-          <View 
+          <View
             style={[styles.modalContainer, { backgroundColor: theme.card, borderColor: theme.border }]}
             onStartShouldSetResponder={() => true}
           >
             <View style={[styles.modalHeader, { borderBottomColor: theme.border }]}>
-              <Text style={[styles.modalTitle, { color: theme.text }]}>{workout?.day_name }</Text>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>{workout?.day_name}</Text>
               <TouchableOpacity onPress={() => setIsExerciseListModalVisible(false)} style={styles.modalCloseButton}>
                 <Ionicons name="close-outline" size={28} color={theme.text} />
               </TouchableOpacity>
@@ -1420,9 +1420,9 @@ export default function StartedWorkoutInterface() {
                   styles.modalExerciseItem,
                   { borderColor: theme.border },
                   isCurrent
-                    ? { 
-                        backgroundColor: theme.buttonBackground,
-                      }
+                    ? {
+                      backgroundColor: theme.buttonBackground,
+                    }
                     : { backgroundColor: theme.card }
                 ];
                 const nameStyle = [
@@ -1442,7 +1442,7 @@ export default function StartedWorkoutInterface() {
                   if (item.exercise_fully_logged) {
                     return; // Do nothing if exercise is fully logged
                   }
-                  
+
                   const firstUnloggedSetIndex = allSets.findIndex(
                     s => s.exercise_id === item.logged_exercise_id && !s.set_logged
                   );
@@ -1461,8 +1461,8 @@ export default function StartedWorkoutInterface() {
 
                 // Use TouchableWithoutFeedback for completed exercises to maintain scrollability
                 const TouchableComponent = item.exercise_fully_logged ? TouchableWithoutFeedback : TouchableOpacity;
-                const touchableProps = item.exercise_fully_logged 
-                  ? {} 
+                const touchableProps = item.exercise_fully_logged
+                  ? {}
                   : { onPress: handlePress, disabled: item.exercise_fully_logged };
 
                 return (
@@ -1477,7 +1477,7 @@ export default function StartedWorkoutInterface() {
                           {muscleGroupInfo && muscleGroupInfo.value && (
                             <View style={[
                               styles.muscleGroupBadgeModal,
-                              { 
+                              {
                                 backgroundColor: isCurrent ? theme.text : theme.card,
                                 borderColor: isCurrent ? theme.buttonText : theme.border,
                               }
@@ -1517,7 +1517,7 @@ export default function StartedWorkoutInterface() {
       </Modal>
     );
   };
-  
+
   const renderNotesModal = () => {
     return (
       <Modal
@@ -1529,22 +1529,22 @@ export default function StartedWorkoutInterface() {
         }}
       >
 
-        
-    {isNotesModalVisible && (
+
+        {isNotesModalVisible && (
           <StatusBar
             backgroundColor={theme.type === 'light' ? "rgba(0, 0, 0, 0.5)" : "black"}
-            barStyle={'light-content'}          />
+            barStyle={'light-content'} />
         )}
 
 
 
-        
+
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
           onPressOut={() => setIsNotesModalVisible(false)}
         >
-          <View 
+          <View
             style={[styles.modalContainer, { backgroundColor: theme.card, borderColor: theme.border }]}
             onStartShouldSetResponder={() => true} // Prevents modal from closing on inner press
           >
@@ -1556,7 +1556,7 @@ export default function StartedWorkoutInterface() {
             </View>
             <Text style={[styles.notesSubHeader, { color: theme.text }]}>{t('exerciseNotes')}</Text>
             <ScrollView showsVerticalScrollIndicator={false}>
-                <Text style={[styles.notesModalText, { color: theme.text }]}>{notesModalContent}</Text>
+              <Text style={[styles.notesModalText, { color: theme.text }]}>{notesModalContent}</Text>
             </ScrollView>
           </View>
         </TouchableOpacity>
@@ -1573,7 +1573,7 @@ export default function StartedWorkoutInterface() {
       restStartTime: null
     }));
   };
-  
+
   useEffect(() => {
     const configureAudio = async () => {
       try {
@@ -1592,10 +1592,10 @@ export default function StartedWorkoutInterface() {
   }, []);
 
   const playSound = async () => {
-    
+
     try {
       const { sound } = await Audio.Sound.createAsync(
-         require('../assets/sounds/switch.mp3')
+        require('../assets/sounds/switch.mp3')
       );
       sound.setOnPlaybackStatusUpdate(async (status) => {
         if (status.isLoaded && status.didJustFinish) {
@@ -1604,7 +1604,7 @@ export default function StartedWorkoutInterface() {
       });
       await sound.playAsync();
     } catch (error) {
-        console.log('Error playing sound', error);
+      console.log('Error playing sound', error);
     }
   };
 
@@ -1614,28 +1614,28 @@ export default function StartedWorkoutInterface() {
 
     let nextUnloggedExercise = null;
     for (let i = currentExerciseInExercisesIndex + 1; i < exercises.length; i++) {
-        if (!exercises[i].exercise_fully_logged) {
-            nextUnloggedExercise = exercises[i];
-            break;
-        }
+      if (!exercises[i].exercise_fully_logged) {
+        nextUnloggedExercise = exercises[i];
+        break;
+      }
     }
 
     if (nextUnloggedExercise) {
-        const firstUnloggedSetIndex = allSets.findIndex(
-            s => s.exercise_id === nextUnloggedExercise.logged_exercise_id && !s.set_logged
-        );
+      const firstUnloggedSetIndex = allSets.findIndex(
+        s => s.exercise_id === nextUnloggedExercise.logged_exercise_id && !s.set_logged
+      );
 
-        if (firstUnloggedSetIndex !== -1) {
-            clearRestTimerState();
-            setTimerState(prev =>
-              updateTimerState(prev, {
-                currentSetIndex: firstUnloggedSetIndex,
-                workoutStage: 'exercise',
-              })
-            );
-        }
+      if (firstUnloggedSetIndex !== -1) {
+        clearRestTimerState();
+        setTimerState(prev =>
+          updateTimerState(prev, {
+            currentSetIndex: firstUnloggedSetIndex,
+            workoutStage: 'exercise',
+          })
+        );
+      }
     } else {
-        Alert.alert(t('noMoreExercises'), t('allFollowingExercisesLogged'));
+      Alert.alert(t('noMoreExercises'), t('allFollowingExercisesLogged'));
     }
   };
   const handleFinishWorkout = () => {
@@ -1648,11 +1648,11 @@ export default function StartedWorkoutInterface() {
       setAllSets(updatedSets);
       updateExerciseLoggedStatus(currentSet.exercise_id, updatedSets);
     }
-    
+
     stopWorkoutTimer();
     setTimerState(prev => updateTimerState(prev, { workoutStage: 'completed' }));
   };
-  
+
   if (loading) {
     return (
       <View style={[styles.loadingContainer, { backgroundColor: theme.background }]}>
@@ -1677,8 +1677,8 @@ export default function StartedWorkoutInterface() {
           {timerState.workoutStarted ? (workout ? `${workout.workout_name} - ${workout.day_name}` : 'Workout') : t("startWorkout")}
         </Text>
         {timerState.workoutStarted ? (
-          <TouchableOpacity 
-            onPress={() => setIsExerciseListModalVisible(true)} 
+          <TouchableOpacity
+            onPress={() => setIsExerciseListModalVisible(true)}
             style={styles.headerListIcon}
           >
             <Ionicons name="reorder-three-outline" size={23} color={theme.text} />
@@ -1687,10 +1687,10 @@ export default function StartedWorkoutInterface() {
           <View style={{ width: 23 + (styles.headerListIcon.padding * 2), marginLeft: styles.headerListIcon.marginLeft }} />
         )}
       </View>
-      
-      <ScrollView 
+
+      <ScrollView
         showsVerticalScrollIndicator={false}
-        style={styles.content} 
+        style={styles.content}
         contentContainerStyle={[
           styles.scrollContent,
           timerState.workoutStage === 'rest' && styles.restScrollContent
@@ -1755,23 +1755,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     flex: 1
   },
-  
+
   // Toggle styles
-  toggleRow: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    paddingVertical: 10, 
-    paddingHorizontal: 15, 
-    borderRadius: 8, 
-    borderWidth: 1, 
-    marginBottom: 10 
+  toggleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginBottom: 10
   },
-  toggleText: { 
-    fontSize: 16, 
-    fontWeight: '600' 
+  toggleText: {
+    fontSize: 16,
+    fontWeight: '600'
   },
-  
+
   // Overview screen styles
   overviewContainer: {
     width: '100%',
@@ -1863,7 +1863,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  
+
   // Exercise screen styles
   exerciseScreenContainer: {
     width: '100%',
@@ -1983,7 +1983,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontStyle: 'italic',
   },
-  
+
   // Rest screen styles
   restScreenContainer: {
     width: '100%',
@@ -2065,7 +2065,7 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 30,
   },
-  
+
   // Completed screen styles
   completedContainer: {
     width: '100%',

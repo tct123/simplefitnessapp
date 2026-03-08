@@ -1,4 +1,4 @@
-import React, {useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 
 import {
   View,
@@ -28,11 +28,11 @@ export default function LogWorkout() {
   const route = useRoute<RouteProp<WorkoutLogStackParamList, 'LogWorkout'>>();
   const db = useSQLiteContext();
   const navigation = useNavigation<LogWorkoutNavigationProp>();
-  const { theme } = useTheme(); 
+  const { theme } = useTheme();
   const { t } = useTranslation(); // Initialize translations
   const { notificationPermissionGranted, scheduleNotification } = useNotifications();
   const { dateFormat, timeFormat } = useSettings();
-  
+
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(() => {
     return route.params?.selectedDate ? new Date(route.params.selectedDate) : null;
@@ -41,7 +41,7 @@ export default function LogWorkout() {
   const [selectedWorkout, setSelectedWorkout] = useState<number | null>(null);
   const [days, setDays] = useState<{ day_id: number; day_name: string }[]>([]);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
-  
+
   // Notification related states
   const [notifyMe, setNotifyMe] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -113,9 +113,9 @@ export default function LogWorkout() {
         }
         await fetchWorkouts();
       };
-      
+
       setup();
-      
+
       return () => {
         // Cleanup function if needed
       };
@@ -296,16 +296,16 @@ export default function LogWorkout() {
     const today = new Date();
     const yesterday = new Date();
     const tomorrow = new Date();
-  
+
     yesterday.setDate(today.getDate() - 1); // Yesterday's date
     tomorrow.setDate(today.getDate() + 1); // Tomorrow's date
-  
+
     // Helper to compare dates without time
     const isSameDay = (d1: Date, d2: Date) =>
       d1.getDate() === d2.getDate() &&
       d1.getMonth() === d2.getMonth() &&
       d1.getFullYear() === d2.getFullYear();
-  
+
     // Check if the date matches today, yesterday, or tomorrow
     if (isSameDay(date, today)) {
       return t('Today');
@@ -314,17 +314,17 @@ export default function LogWorkout() {
     } else if (isSameDay(date, tomorrow)) {
       return t('Tomorrow');
     }
-  
+
     // Default date formatting based on user-selected format
     const day = String(date.getDate()).padStart(2, '0');
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
-  
+
     return dateFormat === 'mm-dd-yyyy'
       ? `${month}-${day}-${year}`
       : `${day}-${month}-${year}`;
   };
-  
+
   const renderItem = ({ item }: { item: any }) => {
     switch (item.type) {
       case 'TITLE':
@@ -456,7 +456,7 @@ export default function LogWorkout() {
           </TouchableOpacity>
         }
       />
-      
+
       {showDatePicker && (
         <DateTimePicker
           value={selectedDate || new Date()}
@@ -470,7 +470,7 @@ export default function LogWorkout() {
           }}
         />
       )}
-      
+
       {showTimePicker && (
         <DateTimePicker
           value={notificationTime}
@@ -586,4 +586,3 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
 });
-  

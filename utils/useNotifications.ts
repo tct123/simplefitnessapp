@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import * as Notifications from 'expo-notifications';
-import { 
+import {
   requestNotificationPermissions,
-  scheduleWorkoutNotification, 
+  scheduleWorkoutNotification,
   cancelWorkoutNotification,
   getAllScheduledNotifications
 } from './notificationUtils';
@@ -14,8 +14,8 @@ import { useSettings } from '../context/SettingsContext';
 export const useNotifications = () => {
   const [loading, setLoading] = useState(false);
   const [scheduledNotifications, setScheduledNotifications] = useState<Notifications.NotificationRequest[]>([]);
-  
-  const { 
+
+  const {
     notificationPermissionGranted,
     setNotificationPermissionGranted
   } = useSettings();
@@ -61,7 +61,7 @@ export const useNotifications = () => {
         setScheduledNotifications([]);
       }
     };
-    
+
     loadNotifications();
   }, [notificationPermissionGranted]);
 
@@ -77,28 +77,28 @@ export const useNotifications = () => {
       console.log('Notifications disabled in app settings');
       return null;
     }
-    
+
     const notificationId = await scheduleWorkoutNotification(params);
-    
+
     // Refresh the notification list if successful
     if (notificationId) {
       const notifications = await getAllScheduledNotifications();
       setScheduledNotifications(notifications);
     }
-    
+
     return notificationId;
   }, [notificationPermissionGranted]);
 
   // 4) Cancel a single notification
   const cancelNotification = useCallback(async (notificationId: string) => {
     const success = await cancelWorkoutNotification(notificationId);
-    
+
     // Refresh the notification list if successful
     if (success) {
       const notifications = await getAllScheduledNotifications();
       setScheduledNotifications(notifications);
     }
-    
+
     return success;
   }, []);
 

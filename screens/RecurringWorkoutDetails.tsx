@@ -74,7 +74,7 @@ export default function RecurringWorkoutDetails() {
         WHERE recurring_workout_id = ?`,
         [recurring_workout_id]
       );
-      
+
       if (result.length > 0) {
         setWorkout(result[0]);
       } else {
@@ -108,7 +108,7 @@ export default function RecurringWorkoutDetails() {
     if (workout.recurring_interval === 1) {
       return t('everyday');
     } else if (workout.recurring_interval > 1) {
-     return `${t('every')} ${workout.recurring_interval} ${t('days')}`;
+      return `${t('every')} ${workout.recurring_interval} ${t('days')}`;
     } else if (workout.recurring_interval === 0 && workout.recurring_days) {
       // Weekly schedule with specific days
       return t('weekly');
@@ -119,22 +119,22 @@ export default function RecurringWorkoutDetails() {
   // Format notification time from "HH:mm" string based on user setting
   const formatNotificationTime = (timeString: string | null): string => {
     if (!timeString) return '';
-    
+
     const [hours, minutes] = timeString.split(':');
     const date = new Date();
     date.setHours(parseInt(hours, 10), parseInt(minutes, 10));
-    
+
     if (timeFormat === 'AM/PM') {
       return date.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true });
     }
-    
+
     return timeString;
   };
 
   // Format weekdays for display
   const getWeekdaysDisplay = (): string => {
     if (!workout || !workout.recurring_days || workout.recurring_interval !== 0) return '';
-    
+
     return workout.recurring_days
       .split(',')
       .map(day => {
@@ -189,7 +189,7 @@ export default function RecurringWorkoutDetails() {
     return (
       <View style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
         <Text style={[styles.errorText, { color: theme.text }]}>{t('workoutNotFound')}</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.button, { backgroundColor: theme.buttonBackground }]}
           onPress={() => navigation.goBack()}
         >
@@ -200,7 +200,7 @@ export default function RecurringWorkoutDetails() {
   }
 
   return (
-    <ScrollView 
+    <ScrollView
       style={[styles.container, { backgroundColor: theme.background }]}
       contentContainerStyle={{ paddingBottom: 40 }}
     >
@@ -212,42 +212,42 @@ export default function RecurringWorkoutDetails() {
       <Text style={[styles.title, { color: theme.text }]}>
         {t('recurringWorkoutDetails')}
       </Text>
-      
+
       <View style={[styles.infoCard, { backgroundColor: theme.card }]}>
         <Text style={[styles.infoLabel, { color: theme.text }]}>{t('workout')}:</Text>
         <Text style={[styles.infoValue, { color: theme.text }]}>{workout.workout_name}</Text>
-        
+
         <Text style={[styles.infoLabel, { color: theme.text }]}>{t('day')}:</Text>
         <Text style={[styles.infoValue, { color: theme.text }]}>{workout.day_name}</Text>
-        
+
         <Text style={[styles.infoLabel, { color: theme.text }]}>{t('recurringInterval')}:</Text>
         <Text style={[styles.infoValue, { color: theme.text }]}>{getIntervalDescription()}</Text>
-        
+
         {workout.recurring_interval === 0 && workout.recurring_days && (
           <>
             <Text style={[styles.infoLabel, { color: theme.text }]}>{t('selectedDays')}:</Text>
             <Text style={[styles.infoValue, { color: theme.text }]}>{getWeekdaysDisplay()}</Text>
           </>
         )}
-        
+
         <Text style={[styles.infoLabel, { color: theme.text }]}>{t('notifications')}:</Text>
         <Text style={[styles.infoValue, { color: theme.text }]}>
-          {workout.notification_enabled === 1 
-            ? `${t('Notifications enabled')} (${formatNotificationTime(workout.notification_time)})` 
+          {workout.notification_enabled === 1
+            ? `${t('Notifications enabled')} (${formatNotificationTime(workout.notification_time)})`
             : t('Notificationsdisabled')}
         </Text>
       </View>
 
       <View style={styles.buttonContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={[styles.button, { backgroundColor: theme.buttonBackground }]}
           onPress={() => navigation.navigate('EditRecurringWorkout', { recurring_workout_id: recurring_workout_id })}
         >
           <Ionicons name="pencil" size={20} color={theme.buttonText} style={styles.buttonIcon} />
           <Text style={[styles.buttonText, { color: theme.buttonText }]}>{t('edit')}</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={[styles.button, { backgroundColor: theme.card }]}
           onPress={handleDelete}
         >
