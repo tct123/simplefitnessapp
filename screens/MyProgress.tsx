@@ -1,11 +1,10 @@
 import React, {useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from "expo-router/react-navigation";
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { StackNavigationProp } from "expo-router/js-stack";
 import { WeightLogStackParamList } from '../App'; // Adjust the path to where WeightLogStackParamList is defined
 import { useSQLiteContext } from 'expo-sqlite';
-import { useFocusEffect } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 

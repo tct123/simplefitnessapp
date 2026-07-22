@@ -16,10 +16,10 @@ import {
   useNavigation,
   useRoute,
   type RouteProp,
-} from '@react-navigation/native';
+} from "expo-router/react-navigation";
 import { useSQLiteContext } from 'expo-sqlite';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { StackNavigationProp } from "expo-router/js-stack";
 // Import the scaling utilities
 import {
   scale,

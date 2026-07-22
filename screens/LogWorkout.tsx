@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute, RouteProp } from "expo-router/react-navigation";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useSettings } from '../context/SettingsContext';
 import { useTheme } from '../context/ThemeContext';
@@ -18,7 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useNotifications } from '../utils/useNotifications';
 import { WorkoutLogStackParamList } from '../App';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { StackNavigationProp } from "expo-router/js-stack";
 
 const NOTIFICATION_TIME_KEY = '@last_notification_time';
 

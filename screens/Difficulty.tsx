@@ -4,13 +4,13 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { Workout } from '../utils/types';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useFocusEffect, useRoute, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useRoute, useNavigation } from "expo-router/react-navigation";
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import DifficultyList from '../components/DifficultyList';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { WorkoutStackParamList } from '../App';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { StackNavigationProp } from "expo-router/js-stack";
 import { insertWorkouts } from '../utils/insertWorkouts'
 import { addTables } from '../utils/addTemplateTable';
 // import { insertTestData } from '../utils/insertTestData';

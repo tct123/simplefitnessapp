@@ -5,7 +5,7 @@ import { View, StyleSheet, Alert } from 'react-native';
 import { Workout } from '../utils/types';
 import WorkoutList from '../components/WorkoutList';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from "expo-router/react-navigation";
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import {

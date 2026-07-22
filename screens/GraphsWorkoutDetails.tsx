@@ -13,7 +13,7 @@ import {
   StatusBar,
   
 } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from "expo-router/react-navigation";
 import { useSQLiteContext } from 'expo-sqlite';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../context/ThemeContext';
@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { LineChart, BarChart } from 'react-native-chart-kit';
 import { useSettings } from '../context/SettingsContext';
 import StickyYAxis from '../components/StickyYAxis';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { StackNavigationProp } from "expo-router/js-stack";
 import { WeightLogStackParamList } from '../App';
 import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 

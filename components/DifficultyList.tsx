@@ -1,5 +1,5 @@
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation } from "expo-router/react-navigation";
+import { StackNavigationProp } from "expo-router/js-stack";
 import { WorkoutStackParamList } from '../App'; // Adjust path to where WorkoutStackParamList is defined
 import { Workout } from '../utils/types';
 import React from 'react';

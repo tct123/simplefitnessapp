@@ -8,17 +8,15 @@ node_modules/
 dist/
 web-build/
 expo-env.d.ts
-app.json
-eas.json
+
 # Native
+.kotlin/
 *.orig.*
 *.jks
 *.p8
 *.p12
 *.key
 *.mobileprovision
-*.apk
-*.aab
 
 # Metro
 .metro-health-check*
@@ -38,6 +36,8 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-/keys
+example
 
-/utils/notesaboutfeature.txt
+# generated native folders
+/ios
+/android

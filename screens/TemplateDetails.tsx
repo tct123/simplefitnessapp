@@ -1,4 +1,4 @@
-import { useFocusEffect, useRoute, useNavigation } from '@react-navigation/native'; // Import useFocusEffect
+import { useFocusEffect, useRoute, useNavigation } from "expo-router/react-navigation"; // Import useFocusEffect
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput, Linking } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -6,7 +6,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 import { useTheme } from '../context/ThemeContext';
 import { WorkoutStackParamList } from '../App';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { StackNavigationProp } from "expo-router/js-stack";
 import { useTranslation } from 'react-i18next';
 
 type WorkoutListNavigationProp = StackNavigationProp<WorkoutStackParamList, 'TemplateDetails'>;

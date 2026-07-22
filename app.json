@@ -5,11 +5,6 @@
     "version": "1.7.15",
     "orientation": "portrait",
     "icon": "./assets/simpleicon.png",
-    "splash": {
-      "image": "./assets/simpleicon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "bundleIdentifier": "tr.com.basarsubasi.simplefitnessapp"
     },
@@ -46,7 +41,13 @@
           "color": "#000000",
           "enableBackgroundRemoteNotifications": false
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-asset",
+      "expo-localization",
+      "expo-sharing",
+      "expo-status-bar",
+      "expo-router"
     ],
     "owner": "basarsubasi"
   }

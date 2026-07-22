@@ -7,7 +7,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from "expo-router/react-navigation";
 import { useSQLiteContext } from 'expo-sqlite';
 import { WorkoutLog, LoggedExercise } from '../utils/types';
 import Ionicons from 'react-native-vector-icons/Ionicons';

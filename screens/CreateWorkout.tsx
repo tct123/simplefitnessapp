@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "expo-router/react-navigation";
 import { useSQLiteContext } from 'expo-sqlite';
 import React, { useState } from 'react';
 import {
@@ -13,7 +13,7 @@ import {
   Platform,
 } from 'react-native';
 import { WorkoutStackParamList } from '../App'; // Adjust path to where WorkoutStackParamList is defined
-import { StackNavigationProp } from '@react-navigation/stack';
+import { StackNavigationProp } from "expo-router/js-stack";
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useTheme } from '../context/ThemeContext'; // Import theme context
 import { useTranslation } from 'react-i18next';
