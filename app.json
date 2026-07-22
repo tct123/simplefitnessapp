@@ -4,52 +4,43 @@
     "slug": "simplefitnessappbeta",
     "version": "1.7.15",
     "orientation": "portrait",
-    "icon": "./assets/simpleicon.png",
+    "icon": "./assets/images/icon.png",
+    "scheme": "simplefitnessappbeta",
+    "userInterfaceStyle": "automatic",
     "ios": {
-      "bundleIdentifier": "tr.com.basarsubasi.simplefitnessapp"
+      "icon": "./assets/expo.icon"
     },
     "android": {
-      "versionCode": 66,
-      "blockedPermissions": [
-        "android.permission.INTERNET",
-        "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.RECORD_AUDIO",
-        "android.permission.ACCESS_NETWORK_STATE",
-        "android.permission.ACCESS_WIFI_STATE"
-      ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/simpleicon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "package": "tr.com.basarsubasi.simplefitnessapp"
+      "predictiveBackGestureEnabled": false
     },
     "web": {
-      "favicon": "./assets/simpleicon.png"
-    },
-    "extra": {
-      "eas": {
-        "projectId": "1b72cc6b-8e1a-47b1-a7d3-8fcf199a3015"
-      }
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
-      "expo-sqlite",
-      "expo-build-properties",
+      "expo-router",
       [
-        "expo-notifications",
+        "expo-splash-screen",
         {
-          "icon": "./assets/notificationicon.png",
-          "color": "#000000",
-          "enableBackgroundRemoteNotifications": false
+          "backgroundColor": "#208AEF",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76
         }
       ],
       "@react-native-community/datetimepicker",
-      "expo-asset",
-      "expo-localization",
-      "expo-sharing",
-      "expo-status-bar",
-      "expo-router",
-      "@react-native-vector-icons/ionicons"
+      "@react-native-vector-icons/ionicons",
+      "expo-sqlite",
+      "expo-notifications"
     ],
-    "owner": "basarsubasi"
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
   }
 }

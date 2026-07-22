@@ -1,42 +1,41 @@
-import React, { useState, useEffect, useRef } from 'react';
+import Ionicons from "@react-native-vector-icons/ionicons";
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
+import * as Notifications from 'expo-notifications';
+import { RouteProp, useNavigation, useRoute } from "expo-router/react-navigation";
+import { useSQLiteContext } from 'expo-sqlite';
+import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
-  View,
-  Text,
+  ActivityIndicator,
+  Alert,
+  AppState,
+  FlatList,
+  Linking,
+  Modal,
+  ScrollView,
+  StatusBar,
   StyleSheet,
+  Switch,
+  Text,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  ScrollView,
-  ActivityIndicator,
-  TextInput,
-  Alert,
-  FlatList,
   Vibration,
-  Platform,
-  Switch,
-  Modal,
-  AppState,
-  Linking,
-  StatusBar
+  View
 } from 'react-native';
-import { useNavigation, useRoute, RouteProp } from "expo-router/react-navigation";
-import Ionicons from "@react-native-vector-icons/ionicons/static";
-import { useTheme } from '../context/ThemeContext';
-import { useTranslation } from 'react-i18next';
-import { useSQLiteContext } from 'expo-sqlite';
-import { StartWorkoutStackParamList } from '../App';
-import * as Notifications from 'expo-notifications';
-import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { useSettings } from '../context/SettingsContext';
-import { loadRestTimerPreferences, saveRestTimerPreferences } from '../utils/startedWorkoutPreferenceUtils';
-import { Audio, InterruptionModeIOS, InterruptionModeAndroid } from 'expo-av';
-import {
-  useTimerPersistence,
-  createTimerState,
-  updateTimerState,
-  timerCalculations,
-  TimerState
-} from '../utils/timerPersistenceUtils';
 import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
+import { StartWorkoutStackParamList } from '../App';
+import { useSettings } from '../context/SettingsContext';
+import { useTheme } from '../context/ThemeContext';
+import { loadRestTimerPreferences, saveRestTimerPreferences } from '../utils/startedWorkoutPreferenceUtils';
+import {
+  createTimerState,
+  timerCalculations,
+  TimerState,
+  updateTimerState,
+  useTimerPersistence
+} from '../utils/timerPersistenceUtils';
 
 type StartedWorkoutRouteProps = RouteProp<
   StartWorkoutStackParamList,
@@ -267,7 +266,7 @@ export default function StartedWorkoutInterface() {
       // Optional: enable notifications by default if permission is granted
       // setEnableNotifications(true);
     }
-  }, [notificationPermissionGranted]);
+  }, [enableNotifications, notificationPermissionGranted]);
 
   useEffect(() => {
     const loadInitialData = async () => {

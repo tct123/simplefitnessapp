@@ -1,36 +1,21 @@
 {
+  "cli": {
+    "version": ">= 21.0.3",
+    "appVersionSource": "remote"
+  },
   "build": {
-    "beta": {
-      "android": {
-        "buildType": "apk"
-      }
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
     },
-    "preview2": {
-      "android": {
-        "gradleCommand": ":app:assembleRelease"
-      }
-    },
-    "preview3": {
-      "developmentClient": true
-    },
-    "preview4": {
+    "preview": {
       "distribution": "internal"
     },
     "production": {
-      "android": {
-        "buildType": "app-bundle"
-      }
+      "autoIncrement": true
     }
   },
-
-
   "submit": {
-    "production": {
-      "android": {
-        "serviceAccountKeyPath": "./keys/simple-fitness-app-444923-010e6f0a87b0.json",
-        "track": "production",
-        "releaseStatus": "completed"
-      }
-    }
+    "production": {}
   }
 }
