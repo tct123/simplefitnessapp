@@ -1,5 +1,5 @@
-import Ionicons from "@react-native-vector-icons/ionicons";
-import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-av';
+import Ionicons from '@react-native-vector-icons/ionicons';
+import { Audio, InterruptionModeAndroid, InterruptionModeIOS } from 'expo-audio';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import * as Notifications from 'expo-notifications';
 import { RouteProp, useNavigation, useRoute } from "expo-router/react-navigation";
