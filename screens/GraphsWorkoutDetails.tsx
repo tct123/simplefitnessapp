@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useNavigation, useFocusEffect } from "expo-router/react-navigation";
 import { useSQLiteContext } from 'expo-sqlite';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { LineChart, BarChart } from 'react-native-chart-kit';

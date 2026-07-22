@@ -19,7 +19,7 @@ import {
   StatusBar
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from "expo-router/react-navigation";
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import { useSQLiteContext } from 'expo-sqlite';

@@ -1,7 +1,7 @@
 import React, {useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from "expo-router/react-navigation";
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { StackNavigationProp } from "expo-router/js-stack";
 import { WeightLogStackParamList } from '../App'; // Adjust the path to where WeightLogStackParamList is defined
 import { useSQLiteContext } from 'expo-sqlite';

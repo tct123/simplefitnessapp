@@ -1,7 +1,7 @@
 import { useFocusEffect, useRoute, useNavigation } from "expo-router/react-navigation"; // Import useFocusEffect
 import React, { useState, useRef, useEffect } from 'react';
 import { View, ScrollView, Text, StyleSheet, FlatList, TouchableOpacity, Alert, Modal, TextInput, Animated, Linking, Keyboard, TouchableWithoutFeedback, StatusBar } from 'react-native'; // Import StatusBar
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useSQLiteContext } from 'expo-sqlite';
 import { AutoSizeText, ResizeTextMode } from 'react-native-auto-size-text';
 import { useTheme } from '../context/ThemeContext';

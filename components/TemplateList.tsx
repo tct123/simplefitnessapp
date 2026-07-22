@@ -4,7 +4,7 @@ import { WorkoutStackParamList } from '../App'; // Adjust path to where WorkoutS
 import { TemplateWorkouts } from '../utils/types';
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, ScrollView, View } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useTheme } from '../context/ThemeContext'; // Adjust the path to your ThemeContext
 import { useTranslation } from 'react-i18next';
 

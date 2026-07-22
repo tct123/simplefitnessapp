@@ -8,7 +8,7 @@ import { useFocusEffect, useRoute, useNavigation } from "expo-router/react-navig
 import { useTheme } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 import DifficultyList from '../components/DifficultyList';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { WorkoutStackParamList } from '../App';
 import { StackNavigationProp } from "expo-router/js-stack";
 import { insertWorkouts } from '../utils/insertWorkouts'

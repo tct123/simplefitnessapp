@@ -6,7 +6,7 @@ import { SQLiteProvider } from 'expo-sqlite';
 import { Asset } from 'expo-asset';
 import { createBottomTabNavigator } from "expo-router/js-tabs";
 import { NavigationContainer, NavigationContainerRef } from "expo-router/react-navigation";
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import Home from './screens/Home'; // Assuming you have a Home screen component
 import Workouts from './screens/Workouts';
 import CreateWorkout from './screens/CreateWorkout';

@@ -14,7 +14,7 @@ import {
 } from 'react-native';
 import { WorkoutStackParamList } from '../App'; // Adjust path to where WorkoutStackParamList is defined
 import { StackNavigationProp } from "expo-router/js-stack";
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 import { useTheme } from '../context/ThemeContext'; // Import theme context
 import { useTranslation } from 'react-i18next';
 

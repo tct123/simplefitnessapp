@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Dimensions, Linking } from 'react-native'
 import { useTheme } from '../context/ThemeContext';
 import { ScaledSheet, scale } from 'react-native-size-matters'; // Import ScaledSheet for scaling
 import { useTranslation } from 'react-i18next';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import Ionicons from "@react-native-vector-icons/ionicons/static";
 
 
 
